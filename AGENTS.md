@@ -5,3 +5,7 @@ Classical VaR Implementation
 Quantum VaR Implementation using Classiq 
 Comparison and analysis
 Clear writeup
+
+
+Look at the classiq docs which are linked here as they contain lots of useful information on how to use the software:
+https://docs.classiq.io/latest/

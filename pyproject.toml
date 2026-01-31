@@ -1,0 +1,15 @@
+[project]
+name = "iquhack"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "classiq>=0.105.0",
+    "dataclasses>=0.8",
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.1",
+    "scipy>=1.17.0",
+    "typing>=3.10.0.0",
+    "yfinance>=1.1.0",
+]
