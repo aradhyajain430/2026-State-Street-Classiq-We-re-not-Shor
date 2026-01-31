@@ -36,7 +36,7 @@ def main():
     )
     parser.add_argument("--mu", type=float, default=0.0)
     parser.add_argument("--sigma", type=float, default=1.0)
-    parser.add_argument("--num-qubits", type=int, default=7)
+    parser.add_argument("--num-qubits", type=int, default=4)
     parser.add_argument("--alpha", type=float, default=0.05)
     parser.add_argument("--num-sigmas", type=float, default=3.0)
     parser.add_argument("--prep-bound", type=float, default=0.0)

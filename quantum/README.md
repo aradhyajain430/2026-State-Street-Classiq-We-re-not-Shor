@@ -23,3 +23,8 @@ Tune IQAE epsilon/confidence_alpha at fixed shots (default 64):
 ```
 uv run python -m quantum.iqae_eps_alpha_tuning
 ```
+
+Epsilon scaling (queries vs 1/epsilon):
+```
+uv run python -m quantum.iqae_epsilon_scaling
+```
