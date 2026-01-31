@@ -28,6 +28,7 @@ from statistics import NormalDist
 
 z = NormalDist().inv_cdf(1 - c)
 VaR = portfolio_value * (mu - sigma * z)
+```
 Where the distribution function measures the percent change in the portfolio 
 over a single day.
 
@@ -35,7 +36,7 @@ Essentially, we find when the cdf equals 1-c and get the z-score at that point.
 We then use that z-score calculate the percent change which is equal to 
 (mu - sigma * z). Then we multiply the percent change by the portfolio value to 
 get the net loss in portfolio value.
-```
+
 
 ## Quantum Solution
 
