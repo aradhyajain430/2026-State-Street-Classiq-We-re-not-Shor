@@ -6,7 +6,7 @@
   "confidence": 0.95,
   "portfolio_value": 1.0,
   "true_var": 0.03239707253902943,
-  "single_run_var": 0.03294579645364767,
+  "single_run_var": 0.031803040123507854,
   "single_run_samples": 10000,
   "trials": 200,
   "sample_sizes": [
@@ -41,6 +41,7 @@
     78805,
     100000
   ],
-  "fit_slope": -0.4948302752618595,
-  "fit_intercept": -3.4416083533068758
+  "seed": 3917707872,
+  "fit_slope": -0.5041231673796763,
+  "fit_intercept": -3.3697165576746038
 }

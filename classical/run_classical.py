@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import time
 from dataclasses import asdict
 from pathlib import Path
 
@@ -105,7 +106,11 @@ def run(args: argparse.Namespace) -> None:
     confidence = args.confidence
     portfolio_value = args.portfolio
 
-    rng = np.random.default_rng(args.seed)
+    seed = args.seed
+    if seed is None:
+        # Millisecond-resolution seed folded into uint32 range for NumPy.
+        seed = int(time.time() * 1_000_000) % (2**32 - 1)
+    rng = np.random.default_rng(seed)
 
     true_var = theoretical_var_gaussian(model, confidence, portfolio_value)
     single_run = monte_carlo_var(model, confidence, args.single_samples, portfolio_value, rng)
@@ -137,6 +142,16 @@ def run(args: argparse.Namespace) -> None:
 
     output_dir = Path(args.outdir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure deterministic overwrite for common outputs.
+    for filename in (
+        "error_scaling.csv",
+        "summary.json",
+        "var_convergence.png",
+        "error_scaling.png",
+    ):
+        target = output_dir / filename
+        if target.exists():
+            target.unlink()
 
     write_csv(output_dir / "error_scaling.csv", results)
 
@@ -152,6 +167,7 @@ def run(args: argparse.Namespace) -> None:
         "single_run_samples": args.single_samples,
         "trials": args.trials,
         "sample_sizes": args.sample_sizes,
+        "seed": seed,
         "fit_slope": float(fit_slope),
         "fit_intercept": float(fit_intercept),
     }
@@ -161,6 +177,7 @@ def run(args: argparse.Namespace) -> None:
     print(f"Theoretical VaR: {true_var:.6f}")
     print(f"Single-run VaR ({args.single_samples} samples): {single_run:.6f}")
     print(f"Fit slope (log-log error vs N): {fit_slope:.3f}")
+    print(f"Seed: {seed}")
     print(f"Outputs: {output_dir}")
 
 
@@ -178,7 +195,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=default_sample_sizes(),
         help="Comma-separated list of sample sizes",
     )
-    parser.add_argument("--seed", type=int, default=1234, help="Random seed")
+    parser.add_argument("--seed", type=int, default=None, help="Random seed (default: time-based)")
     parser.add_argument("--outdir", type=str, default="classical/results", help="Output directory")
     return parser
 
