@@ -1,46 +1,52 @@
+import argparse
 import yfinance as yf
 import numpy as np
 from var_core import GaussianModel, monte_carlo_var, theoretical_var_gaussian
 
 def get_real_parameters(ticker, period="1y"):
+    """Fetch data and calculate daily log-return stats."""
     print(f"Fetching data for {ticker}...")
-    df = yf.download(ticker, period=period)
     
+    # FIX: Set multi_level_index=False to avoid the MultiIndex column error
+    df = yf.download(ticker, period=period, progress=False, multi_level_index=False)
+    
+    if df.empty:
+        raise ValueError(f"No data found for ticker {ticker}")
+
     # Calculate Log Returns
     close_prices = df['Close']
     log_returns = np.log(close_prices / close_prices.shift(1)).dropna()
     
-    # .mean() and .std() might return a Series if the dataframe is multi-indexed
+    # Calculate stats and ensure they are raw floats
+    # .iloc[0] or .item() safely extracts the number if it's still wrapped in a Series
     mu = log_returns.mean()
     sigma = log_returns.std()
     
-    # FIX: Use .item() or .iloc[0] to get the raw float out of the pandas object
-    # If mu is a float already, .item() still works; if it's a Series, it grabs the value.
-    try:
-        final_mu = mu.item()
-        final_sigma = sigma.item()
-    except AttributeError:
-        # If they are already raw numpy floats
-        final_mu = float(mu)
-        final_sigma = float(sigma)
-        
-    return final_mu, final_sigma
+    return float(mu), float(sigma)
 
 def main():
-    ticker = "TSLA" # Change to any stock (e.g., TSLA, NVDA, SPY)
-    mu, sigma = get_real_parameters(ticker)
-    
-    # Integrate with your teammate's GaussianModel
-    stock_model = GaussianModel(mu=mu, sigma=sigma)
-    
-    # Run a simulation using your teammate's logic
+    # 1. Set up the argument parser
+    parser = argparse.ArgumentParser(description="Run VaR analysis on a real stock ticker.")
+    parser.add_argument("--ticker", type=str, default="AAPL", help="Stock ticker (e.g., AAPL, ^GSPC, TSLA)")
+    parser.add_argument("--samples", type=int, default=100000, help="Number of Monte Carlo samples")
+    args = parser.parse_args()
+
+    # 2. Get parameters for the specific ticker
+    try:
+        mu, sigma = get_real_parameters(args.ticker)
+    except Exception as e:
+        print(f"Error: {e}")
+        return
+
+    # 3. Integrate with the core math engine
+    model = GaussianModel(mu=mu, sigma=sigma)
     confidence = 0.95
-    n_samples = 100000
     
-    sim_var = monte_carlo_var(stock_model, confidence, n_samples)
-    true_var = theoretical_var_gaussian(stock_model, confidence)
+    sim_var = monte_carlo_var(model, confidence, args.samples)
+    true_var = theoretical_var_gaussian(model, confidence)
     
-    print(f"\n--- Analysis for {ticker} ---")
+    # 4. Display Results
+    print(f"\n--- Analysis for {args.ticker} ---")
     print(f"Daily Mean (mu):    {mu:.6f}")
     print(f"Daily Vol (sigma):  {sigma:.6f}")
     print(f"Theoretical VaR:    {true_var:.6f}")
