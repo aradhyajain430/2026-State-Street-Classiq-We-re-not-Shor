@@ -23,7 +23,6 @@ R \sim \mathcal N(\mu, \sigma),
 the Value at Risk (VaR) at confidence level \(c\) is computed using the
 lower-tail quantile of the distribution.
 
-```python
 from statistics import NormalDist
 
 z = NormalDist().inv_cdf(1 - c)
