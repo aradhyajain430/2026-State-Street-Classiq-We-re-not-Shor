@@ -8,9 +8,15 @@ VaR or value at risk is a quantity that measures the maximum expected loss
 over a given time period at a certain confidence level. For instance, 
 if your VaR for a one day time frame at a 95% confidence interval is 
 1,000,000 dollars, then you would expect to lose at most 1,000,000 dollars 
-in a single day due to random variation.  
-## Classical Solution
+in a single day due to random variation. 
 
+## Classical Solution
+Given a normal Guassian distribution function with variations within one day
+and confidence level c, we can solve for VaR with the following.
+z = NormalDist().inv_cdf(1 - c)
+VaR = - portfolio_value * (mu + sigma * z)
+Where the distribution function measures the percent change in the portfolio 
+over a single day.
 ## Quantum Solution
 
 
