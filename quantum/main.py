@@ -1,11 +1,21 @@
-if __package__ is None:
-    import os
-    import sys
 
-    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from classiq import *
 
-from quantum.iqae_var import main
+def main():
+    print("Hello from quantum!")
 
+
+
+
+@qfunc
+def main(x: Output[QNum], y: Output[QNum]) -> None:
+    allocate(3, x)
+    hadamard_transform(x)
+    y |= x**2 + 1
+
+qmod = create_model(main)
+qprog = synthesize(qmod)
+show(qprog)
 
 if __name__ == "__main__":
     main()

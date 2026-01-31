@@ -1,51 +1,49 @@
-import yfinance as yf
+# real_data.py
+import argparse
 import numpy as np
 from var_core import GaussianModel, monte_carlo_var, theoretical_var_gaussian
-
-def get_real_parameters(ticker, period="1y"):
-    print(f"Fetching data for {ticker}...")
-    df = yf.download(ticker, period=period)
-    
-    # Calculate Log Returns
-    close_prices = df['Close']
-    log_returns = np.log(close_prices / close_prices.shift(1)).dropna()
-    
-    # .mean() and .std() might return a Series if the dataframe is multi-indexed
-    mu = log_returns.mean()
-    sigma = log_returns.std()
-    
-    # FIX: Use .item() or .iloc[0] to get the raw float out of the pandas object
-    # If mu is a float already, .item() still works; if it's a Series, it grabs the value.
-    try:
-        final_mu = mu.item()
-        final_sigma = sigma.item()
-    except AttributeError:
-        # If they are already raw numpy floats
-        final_mu = float(mu)
-        final_sigma = float(sigma)
-        
-    return final_mu, final_sigma
+from run_smart import fit_jump_diffusion, calculate_jump_var
 
 def main():
-    ticker = "TSLA" # Change to any stock (e.g., TSLA, NVDA, SPY)
-    mu, sigma = get_real_parameters(ticker)
-    
-    # Integrate with your teammate's GaussianModel
-    stock_model = GaussianModel(mu=mu, sigma=sigma)
-    
-    # Run a simulation using your teammate's logic
-    confidence = 0.95
-    n_samples = 100000
-    
-    sim_var = monte_carlo_var(stock_model, confidence, n_samples)
-    true_var = theoretical_var_gaussian(stock_model, confidence)
-    
-    print(f"\n--- Analysis for {ticker} ---")
-    print(f"Daily Mean (mu):    {mu:.6f}")
-    print(f"Daily Vol (sigma):  {sigma:.6f}")
-    print(f"Theoretical VaR:    {true_var:.6f}")
-    print(f"Monte Carlo VaR:    {sim_var:.6f}")
-    print(f"Error:              {abs(sim_var - true_var):.6f}")
+    parser = argparse.ArgumentParser(description="Run VaR analysis with Gaussian or Poisson models.")
+    parser.add_argument("--ticker", type=str, default="^GSPC", help="Stock ticker (e.g., AAPL, ^GSPC, TSLA)")
+    parser.add_argument("--method", type=str, choices=["g", "p", "gp"], default="p", 
+                        help="Risk modeling method")
+    parser.add_argument("--confidence", type=float, default=0.95, help="Confidence level (e.g. 0.95 or 0.99)")
+    parser.add_argument("--samples", type=int, default=100000, help="Number of Monte Carlo samples")
+    args = parser.parse_args()
+
+    try:
+        # We use the smarter fitting function which identifies jumps automatically
+        model_params = fit_jump_diffusion(args.ticker)
+    except Exception as e:
+        print(f"Error: {e}")
+        return
+
+    confidence = args.confidence * 100
+    if args.method == "g" or args.method == "gp":
+        # Standard bell curve logic using the diffusion parameters
+
+        print(f"\n--- Analysis for {args.ticker} (Gaussian Method) ---")
+        model = GaussianModel(mu=model_params.mu, sigma=model_params.sigma)
+        sim_var = monte_carlo_var(model, args.confidence, args.samples)
+        true_var = theoretical_var_gaussian(model, args.confidence)
+        
+        print(f"Daily Mean (mu):    {model_params.mu:.6f}")
+        print(f"Daily Vol (sigma):  {model_params.sigma:.6f}")
+        print(f"Theoretical VaR {confidence}%:    {true_var:.6f}")
+        print(f"Monte Carlo VaR {confidence}%:    {sim_var:.6f}")
+
+    if args.method == "p" or args.method == "gp":
+        # Sophisticated Poisson-stacked logic
+
+        print(f"\n--- Analysis for {args.ticker} (Poisson Method) ---")
+        sim_var = calculate_jump_var(model_params, args.confidence, args.samples)
+        
+        print(f"Poisson Intensity:  {model_params.lamb:.5f} jumps/day")
+        print(f"Jump Bias (mu_j):   {model_params.jump_mu:.5f}")
+        print(f"{confidence}% VaR:            {sim_var:.6f}")
+        print("\nNote: Poisson method accounts for fat tails and crash skewness.")
 
 if __name__ == "__main__":
     main()
