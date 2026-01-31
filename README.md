@@ -15,7 +15,17 @@ We were able to conceptualize the classical solution very quickly and many built
 in packages already contained the code we needed to implement this solution.
 
 Given a normal Guassian distribution function with variations within ne day
-and confidence level c, we can solve for VaR with the following.
+and confidence level c, we can solve for VaR with the following:
+Assuming daily returns are normally distributed,
+\[
+R \sim \mathcal N(\mu, \sigma),
+\]
+the Value at Risk (VaR) at confidence level \(c\) is computed using the
+lower-tail quantile of the distribution.
+
+```python
+from statistics import NormalDist
+
 z = NormalDist().inv_cdf(1 - c)
 VaR = portfolio_value * (mu - sigma * z)
 Where the distribution function measures the percent change in the portfolio 
