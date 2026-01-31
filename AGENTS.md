@@ -5,5 +5,3 @@ Classical VaR Implementation
 Quantum VaR Implementation using Classiq 
 Comparison and analysis
 Clear writeup
-
-2
