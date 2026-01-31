@@ -23,6 +23,7 @@ R \sim \mathcal N(\mu, \sigma),
 the Value at Risk (VaR) at confidence level \(c\) is computed using the
 lower-tail quantile of the distribution.
 
+```python
 from statistics import NormalDist
 
 z = NormalDist().inv_cdf(1 - c)
@@ -34,6 +35,8 @@ Essentially, we find when the cdf equals 1-c and get the z-score at that point.
 We then use that z-score calculate the percent change which is equal to 
 (mu - sigma * z). Then we multiply the percent change by the portfolio value to 
 get the net loss in portfolio value.
+```
+
 ## Quantum Solution
 
 
