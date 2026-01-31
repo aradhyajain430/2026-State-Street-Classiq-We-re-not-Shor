@@ -4,11 +4,11 @@ Team members: Eashan Iyer, (write your names)
 Brown University
 
 ## The VaR problem:
-    VaR or value at risk is a quantity that measures the maximum expected loss 
-    over a given time period at a certain confidence level. For instance, 
-    if your VaR for a one day time frame at a 95% confidence interval is 
-    1,000,000 dollars, then you would expect to lose at most 1,000,000 dollars 
-    in a single day due to random variation.  
+VaR or value at risk is a quantity that measures the maximum expected loss 
+over a given time period at a certain confidence level. For instance, 
+if your VaR for a one day time frame at a 95% confidence interval is 
+1,000,000 dollars, then you would expect to lose at most 1,000,000 dollars 
+in a single day due to random variation.  
 ## Classical Solution
 
 ## Quantum Solution
