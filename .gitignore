@@ -1,0 +1,5 @@
+﻿# Classical Monte Carlo outputs
+classical/results/
+
+# Virtual environment
+.venv/
