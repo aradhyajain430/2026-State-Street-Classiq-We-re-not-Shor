@@ -242,7 +242,7 @@ We discretize the Gaussian distribution into $2^n$ grid points spanning $\mu \pm
 
 IQAE is run with a fixed number of shots through an \texttt{ExecutionPreferences} object, which allows us to study shot-noise effects separately from the $\epsilon$-driven query complexity. For the Gaussian experiments we compute a classical CDF and find the VaR index $i^*$ via classical bisection; IQAE then estimates the tail probability at that index. The estimated probability $\hat{\alpha}$ is mapped back to a VaR estimate using the analytic inverse CDF, and error is reported against the analytic Gaussian VaR.
 
-We perform a grid search over $\epsilon$ and the IQAE confidence parameter to tune hyperparameters, then reuse the best pair for the shots-scaling experiment. We also run a separate epsilon-scaling experiment with a fixed shot budget to highlight the expected $O(1/\epsilon)$ query scaling. The plots below are placed immediately after the relevant discussion.
+We perform a grid search over $\epsilon$ and the IQAE confidence parameter to tune hyperparameters, then reuse the best pair for the shots-scaling experiment. We also run a separate epsilon-scaling experiment with a fixed shot budget to highlight the expected $O(1/\epsilon)$ query scaling. For this experiment, we perform another grid search over the shot count and the confidence parameter alpha and select the best possible value. The plots below are placed immediately after the relevant discussion.
 
 \begin{figure}[H]
     \centering
@@ -264,6 +264,14 @@ We perform a grid search over $\epsilon$ and the IQAE confidence parameter to tu
     \centering
     \includegraphics[width=1\linewidth]{iqae_eps_alpha.png}
     \caption{Hyperparameter tuning: grid search over $\epsilon$ and confidence parameter.}
+    \label{fig:iqae_hyperparam_tuning}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{iqae_shots_alpha.png}
+    \caption{Hyperparameter tuning: grid search over shot number and confidence parameter.}
     \label{fig:iqae_hyperparam_tuning}
 \end{figure}
 \FloatBarrier
