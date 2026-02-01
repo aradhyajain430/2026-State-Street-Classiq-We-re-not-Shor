@@ -16,6 +16,7 @@ from real_world_analysis.real_world_analysis import (
     fit_double_poisson,
 )
 
+# Global state used by Classiq state-prep functions.
 DOUBLE_POISSON_PROBS: List[float] = []
 DOUBLE_POISSON_GRID: List[float] = []
 DOUBLE_POISSON_PREP_BOUND: float = 0.0
@@ -28,6 +29,11 @@ def double_poisson_grid(
     tail_prob: float = 1e-3,
     seed: int | None = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
+    """Discretize the fitted model on a grid via Monte Carlo sampling.
+
+    We sample the fitted model, choose a bounded range (via tail quantiles),
+    and histogram the samples into 2^n bins to get a discrete PMF.
+    """
     if num_qubits <= 0:
         raise ValueError("num_qubits must be positive")
     if mc_samples <= 0:
@@ -45,6 +51,7 @@ def double_poisson_grid(
         high = mu + 4.0 * sigma
 
     n = 2**num_qubits
+    # Bin the samples into 2^n buckets for amplitude encoding.
     bins = np.linspace(low, high, n + 1)
     clipped = np.clip(samples, low, high)
     counts, _ = np.histogram(clipped, bins=bins)
@@ -61,6 +68,7 @@ def set_double_poisson_state_params(
     prep_bound: float = 0.0,
     seed: int | None = None,
 ) -> Tuple[np.ndarray, List[float]]:
+    """Compute and store the PMF for Classiq state preparation."""
     grid, probs = double_poisson_grid(
         model=model,
         num_qubits=num_qubits,
@@ -86,6 +94,7 @@ def set_double_poisson_state_params_from_ticker(
     prep_bound: float = 0.0,
     seed: int | None = None,
 ) -> Tuple[DoublePoissonJumpModel, np.ndarray, List[float]]:
+    """Fit the model from data and prepare its discrete PMF."""
     returns = fetch_returns(ticker, period, interval)
     model = fit_double_poisson(returns, threshold_std=threshold_std)
     grid, probs = set_double_poisson_state_params(
@@ -101,6 +110,7 @@ def set_double_poisson_state_params_from_ticker(
 
 @qfunc(synthesize_separately=True)
 def load_double_poisson_state(asset: QNum):
+    """Load the precomputed PMF into amplitudes (QNum view)."""
     inplace_prepare_state(
         probabilities=DOUBLE_POISSON_PROBS,
         bound=DOUBLE_POISSON_PREP_BOUND,
@@ -110,6 +120,7 @@ def load_double_poisson_state(asset: QNum):
 
 @qfunc(synthesize_separately=True)
 def load_double_poisson_state_qarray(asset: QArray[QBit]):
+    """Load the precomputed PMF into amplitudes (QArray view)."""
     inplace_prepare_state(
         probabilities=DOUBLE_POISSON_PROBS,
         bound=DOUBLE_POISSON_PREP_BOUND,
@@ -118,6 +129,7 @@ def load_double_poisson_state_qarray(asset: QArray[QBit]):
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """CLI for fitting and preparing the double-Poisson state."""
     parser = argparse.ArgumentParser(
         description="Prepare a double-Poisson state from real data."
     )

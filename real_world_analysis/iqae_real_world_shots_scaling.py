@@ -18,6 +18,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def geom_series(start: float, ratio: float, count: int) -> List[int]:
+    """Geometric sequence for shot-count sweeps."""
     values: List[int] = []
     current = float(start)
     for _ in range(count):
@@ -27,6 +28,7 @@ def geom_series(start: float, ratio: float, count: int) -> List[int]:
 
 
 def write_csv(path: Path, rows: list[dict[str, float]]) -> None:
+    """Write results to CSV for reproducibility."""
     if not rows:
         return
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -37,6 +39,7 @@ def write_csv(path: Path, rows: list[dict[str, float]]) -> None:
 
 
 def main() -> None:
+    """Run IQAE across shot counts for a fitted real-world distribution."""
     parser = argparse.ArgumentParser(
         description="IQAE shot scaling for real-world double-Poisson model."
     )

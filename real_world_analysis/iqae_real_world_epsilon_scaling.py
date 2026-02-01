@@ -18,6 +18,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def geom_series(start: float, ratio: float, count: int) -> List[float]:
+    """Geometric sequence for epsilon sweeps."""
     values: List[float] = []
     current = float(start)
     for _ in range(count):
@@ -32,6 +33,7 @@ def parse_list(value: str) -> List[float]:
 
 
 def write_csv(path: Path, rows: list[dict[str, float]]) -> None:
+    """Write results to CSV for reproducibility."""
     if not rows:
         return
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -42,6 +44,7 @@ def write_csv(path: Path, rows: list[dict[str, float]]) -> None:
 
 
 def main() -> None:
+    """Run IQAE across epsilons for a fitted real-world distribution."""
     parser = argparse.ArgumentParser(
         description="IQAE epsilon scaling for real-world double-Poisson model."
     )
@@ -101,6 +104,7 @@ def main() -> None:
 
     write_csv(Path(args.csv), rows)
 
+    # Plot query scaling against 1/epsilon.
     eps_arr = np.array([r["epsilon"] for r in rows], dtype=float)
     queries_arr = np.array([r["queries"] for r in rows], dtype=float)
 

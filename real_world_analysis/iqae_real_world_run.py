@@ -21,21 +21,24 @@ from real_world_analysis.quantum_state_prep import (
 )
 
 LOGGER = logging.getLogger(__name__)
-GLOBAL_INDEX = 0
+GLOBAL_INDEX = 0  # Set by the classical bisection index.
 
 
 @qfunc(synthesize_separately=True)
 def state_preparation(asset: QArray[QBit], ind: QBit):
+    """Prepare the distribution and mark tail events via the payoff oracle."""
     load_double_poisson_state(asset)
     payoff(asset=asset, ind=ind)
 
 
 @qperm
 def payoff(asset: Const[QNum], ind: QBit):
+    """Flag assets below the chosen threshold index."""
     ind ^= asset < GLOBAL_INDEX
 
 
 def total_queries(iterations_data) -> int:
+    """Compute total oracle queries across all IQAE iterations."""
     total = 0
     for it in iterations_data:
         k = int(it.grover_iterations)
@@ -47,6 +50,7 @@ def total_queries(iterations_data) -> int:
 
 
 def classical_bisection_index(required_alpha: float, probs: List[float]) -> int:
+    """Find the smallest index whose CDF exceeds the tail probability."""
     cdf = np.cumsum(probs)
     left = 0
     right = len(cdf) - 1
@@ -60,6 +64,7 @@ def classical_bisection_index(required_alpha: float, probs: List[float]) -> int:
 
 
 def invert_cdf(grid: np.ndarray, cdf: np.ndarray, alpha: float) -> float:
+    """Linear interpolation inverse CDF on a discretized grid."""
     idx = int(np.searchsorted(cdf, alpha))
     if idx <= 0:
         return float(grid[0])
@@ -90,6 +95,7 @@ def run_iqae_real_world(
     machine_precision: int | None,
     seed: int | None,
 ) -> Dict[str, float]:
+    """Run IQAE on a fitted double-Poisson model for one ticker."""
     model, grid, probs = set_double_poisson_state_params_from_ticker(
         ticker=ticker,
         period=period,
@@ -122,12 +128,14 @@ def run_iqae_real_world(
     exec_prefs = (
         ExecutionPreferences(num_shots=num_shots) if num_shots is not None else None
     )
+    # IQAE estimates tail probability for the chosen index.
     res = iqae.run(
         epsilon=epsilon, alpha=confidence_alpha, execution_preferences=exec_prefs
     )
     alpha_est = float(np.clip(res.estimation, 1e-12, 1 - 1e-12))
     var_est = invert_cdf(np.asarray(grid), cdf, alpha_est)
 
+    # Reference VaR is approximated by high-sample Monte Carlo.
     rng = np.random.default_rng(seed)
     returns = model.sample_returns(rng, truth_samples)
     confidence = 1.0 - alpha
@@ -146,6 +154,7 @@ def run_iqae_real_world(
 
 
 def main() -> None:
+    """CLI entry point for a single real-world IQAE VaR run."""
     parser = argparse.ArgumentParser(
         description="Run IQAE VaR once for a real-world double-Poisson model."
     )

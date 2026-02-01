@@ -18,6 +18,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def geom_series(start: float, ratio: float, count: int) -> List[float]:
+    """Geometric sequence helper."""
     values: List[float] = []
     current = float(start)
     for _ in range(count):
@@ -32,6 +33,7 @@ def parse_list(value: str) -> List[float]:
 
 
 def write_csv(path: str, rows: list[dict]) -> None:
+    """Write grid results to CSV for reuse."""
     if not rows:
         return
     parent = os.path.dirname(path)
@@ -44,6 +46,7 @@ def write_csv(path: str, rows: list[dict]) -> None:
 
 
 def main() -> None:
+    """Scan confidence_alpha vs shots and visualize IQAE error as a heatmap."""
     parser = argparse.ArgumentParser(
         description="Heatmap of IQAE error vs confidence_alpha and num_shots."
     )

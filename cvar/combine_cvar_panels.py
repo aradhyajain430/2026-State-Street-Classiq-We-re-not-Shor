@@ -6,12 +6,14 @@ import matplotlib.image as mpimg
 
 
 def load_image(path: Path):
+    """Load a PNG and fail fast if it is missing."""
     if not path.exists():
         raise FileNotFoundError(f"Missing image: {path}")
     return mpimg.imread(str(path))
 
 
 def main() -> None:
+    """Assemble the CVaR multi-panel figure from existing PNGs."""
     parser = argparse.ArgumentParser(
         description="Combine CVaR plots into a single multi-panel figure."
     )

@@ -33,6 +33,7 @@ def geom_series(start: float, ratio: float, count: int) -> List[int]:
 
 
 def gaussian_cvar_loss(mu: float, sigma: float, alpha: float) -> float:
+    """Closed-form CVaR for Gaussian returns (loss domain)."""
     z = scipy.stats.norm.ppf(alpha)
     pdf = scipy.stats.norm.pdf(z)
     return float(-mu + sigma * pdf / alpha)
@@ -49,6 +50,7 @@ def write_csv(path: Path, rows: list[dict]) -> None:
 
 
 def main() -> None:
+    """Run IQAE across shot counts and map tail probability to CVaR."""
     parser = argparse.ArgumentParser(
         description="IQAE CVaR error vs num_shots."
     )
@@ -78,6 +80,7 @@ def main() -> None:
     alpha = 1.0 - args.confidence
     true_cvar = gaussian_cvar_loss(args.mu, args.sigma, alpha)
 
+    # Build a discretized Gaussian state for the payoff oracle.
     grid, probs = set_gaussian_state_params(
         mu=args.mu,
         sigma=args.sigma,

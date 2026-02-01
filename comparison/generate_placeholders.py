@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+"""Run classical + quantum experiments and build comparison plots.
+
+This script orchestrates the existing pipelines, aggregates their CSV outputs,
+and writes the final comparison figures into writeup/.
+"""
+
 import argparse
 import csv
 import subprocess
@@ -14,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def run_command(cmd: list[str]) -> None:
+    """Execute a subprocess and fail fast on errors."""
     subprocess.run(cmd, check=True)
 
 
@@ -26,6 +33,7 @@ def run_classical(
     seed: int,
     sample_sizes: list[int] | None,
 ) -> None:
+    """Run the classical Monte Carlo experiment and write CSV outputs."""
     cmd = [
         sys.executable,
         str(ROOT / "classical" / "run_classical.py"),
@@ -56,6 +64,7 @@ def run_quantum_epsilon(
     num_shots: int,
     num_qubits: int,
 ) -> None:
+    """Run IQAE epsilon scaling and write CSV outputs."""
     cmd = [
         sys.executable,
         str(ROOT / "quantum" / "iqae_epsilon_scaling.py"),
@@ -85,6 +94,7 @@ def run_quantum_shots(
     alpha: float,
     num_qubits: int,
 ) -> None:
+    """Run IQAE shots scaling and write CSV outputs."""
     cmd = [
         sys.executable,
         str(ROOT / "quantum" / "iqae_shots_scaling.py"),
@@ -105,6 +115,7 @@ def run_quantum_shots(
 
 
 def load_csv(path: Path) -> list[dict[str, float]]:
+    """Load a numeric CSV into a list of dicts."""
     with path.open("r", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         return [{k: float(v) for k, v in row.items()} for row in reader]
@@ -117,6 +128,7 @@ def plot_error_vs_queries(
     iqae_error: np.ndarray,
     output_path: Path,
 ) -> None:
+    """Plot MC error vs samples alongside IQAE error vs queries."""
     fig, ax = plt.subplots(figsize=(7, 4.5))
     ax.loglog(mc_samples, mc_error, "o-", label="MC error vs samples")
     ax.loglog(iqae_queries, iqae_error, "s-", label="IQAE error vs queries")
@@ -137,6 +149,7 @@ def plot_queries_vs_inv_eps(
     iqae_queries: np.ndarray,
     output_path: Path,
 ) -> None:
+    """Plot query scaling vs 1/epsilon for MC and IQAE."""
     inv_eps_mc = 1.0 / mc_error
     inv_eps_iqae = 1.0 / iqae_eps
 
@@ -162,6 +175,7 @@ def plot_shots_vs_eps(
     iqae_queries: np.ndarray,
     output_path: Path,
 ) -> None:
+    """Plot shot noise vs query complexity in a two-panel figure."""
     fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(10, 4.2))
 
     ax_left.loglog(mc_samples, mc_error, "o-", label="MC samples")
@@ -186,6 +200,7 @@ def plot_shots_vs_eps(
 
 
 def main() -> None:
+    """CLI entry point for comparison plot generation."""
     parser = argparse.ArgumentParser(
         description="Run classical + quantum experiments and generate comparison plots."
     )

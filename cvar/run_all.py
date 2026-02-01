@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def run(cmd: list[str]) -> None:
+    """Run a subprocess and propagate errors."""
     subprocess.run(cmd, check=True)
 
 

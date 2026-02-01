@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+"""Real-world VaR analysis using a double-Poisson jump model.
+
+This module fits a two-sided Poisson jump-diffusion model to historical
+returns and then runs Monte Carlo VaR convergence + error scaling studies.
+"""
+
 import argparse
 import csv
 import json
@@ -17,6 +23,7 @@ import matplotlib.pyplot as plt
 
 @dataclass(frozen=True)
 class DoublePoissonJumpModel:
+    """Two-sided Poisson jump-diffusion model for daily returns."""
     mu: float
     sigma: float
     lambda_pos: float
@@ -30,6 +37,7 @@ class DoublePoissonJumpModel:
         if n <= 0:
             raise ValueError("n must be positive")
 
+        # Continuous diffusion component.
         diffusion = rng.normal(self.mu, self.sigma, size=n)
         num_pos = rng.poisson(self.lambda_pos, size=n)
         num_neg = rng.poisson(self.lambda_neg, size=n)
@@ -37,11 +45,13 @@ class DoublePoissonJumpModel:
         jump_impact = np.zeros(n)
         for i in range(n):
             if num_pos[i] > 0:
+                # Positive jump magnitudes; enforce positive contribution.
                 pos_jumps = rng.normal(
                     self.jump_mu_pos, self.jump_sigma_pos, size=num_pos[i]
                 )
                 jump_impact[i] += np.abs(pos_jumps).sum()
             if num_neg[i] > 0:
+                # Negative jump magnitudes; enforce negative contribution.
                 neg_jumps = rng.normal(
                     self.jump_mu_neg, self.jump_sigma_neg, size=num_neg[i]
                 )
@@ -51,6 +61,7 @@ class DoublePoissonJumpModel:
 
 
 def fetch_returns(ticker: str, period: str, interval: str) -> np.ndarray:
+    """Download daily log returns for a ticker via yfinance."""
     data = yf.download(
         ticker,
         period=period,
@@ -69,11 +80,13 @@ def fetch_returns(ticker: str, period: str, interval: str) -> np.ndarray:
 def fit_double_poisson(
     returns: np.ndarray, threshold_std: float
 ) -> DoublePoissonJumpModel:
+    """Fit a double-Poisson jump model by thresholding outlier returns."""
     mu_total = float(np.mean(returns))
     sigma_total = float(np.std(returns, ddof=1))
     if sigma_total == 0.0:
         raise ValueError("Zero volatility in returns; cannot fit model.")
 
+    # Identify jumps as extreme moves relative to total volatility.
     is_jump = np.abs(returns - mu_total) > (threshold_std * sigma_total)
     jumps = returns[is_jump]
     diffusion = returns[~is_jump]
@@ -81,6 +94,7 @@ def fit_double_poisson(
     mu = float(np.mean(diffusion))
     sigma = float(np.std(diffusion, ddof=1)) if diffusion.size > 1 else 0.0
 
+    # Split jump sizes by sign to capture skew.
     pos_jumps = jumps[jumps > 0.0]
     neg_jumps = -jumps[jumps < 0.0]
 
@@ -114,6 +128,7 @@ def monte_carlo_var(
     n_samples: int,
     rng: np.random.Generator,
 ) -> float:
+    """Monte Carlo VaR for the fitted model."""
     returns = model.sample_returns(rng, n_samples)
     losses = -returns
     return float(np.quantile(losses, confidence))
@@ -132,6 +147,7 @@ def write_csv(path: Path, rows: list[dict[str, float | int]]) -> None:
 def plot_fit_overlay(
     output_path: Path, historical: np.ndarray, simulated: np.ndarray, title: str
 ) -> None:
+    """Overlay empirical returns with fitted model samples."""
     plt.figure(figsize=(8, 5))
     plt.hist(
         historical,
@@ -164,6 +180,7 @@ def plot_convergence(
     true_var: float,
     title: str,
 ) -> None:
+    """Plot MC convergence with error bars around the mean estimate."""
     plt.figure(figsize=(8, 5))
     plt.errorbar(sample_sizes, mean_estimates, yerr=std_estimates, fmt="o-")
     plt.axhline(true_var, color="black", linestyle="--", label="Reference VaR")
@@ -185,6 +202,7 @@ def plot_error_scaling(
     fit_intercept: float,
     title: str,
 ) -> None:
+    """Plot log-log error scaling and fitted slope."""
     sizes_np = np.asarray(sample_sizes, dtype=float)
     errors_np = np.asarray(abs_errors, dtype=float)
     plt.figure(figsize=(8, 5))
@@ -217,12 +235,15 @@ def run_for_ticker(
     args: argparse.Namespace,
     out_root: Path,
 ) -> None:
+    """Run the full fit + MC pipeline for a single ticker."""
     returns = fetch_returns(ticker, args.period, args.interval)
 
+    # Fit the two-sided jump model from historical data.
     model = fit_double_poisson(returns, args.threshold_std)
 
     rng = np.random.default_rng(args.seed)
 
+    # High-sample Monte Carlo reference for error analysis.
     true_var = monte_carlo_var(model, args.confidence, args.truth_samples, rng)
 
     results = []
@@ -258,6 +279,7 @@ def run_for_ticker(
 
     write_csv(out_dir / "error_scaling.csv", results)
 
+    # Diagnostic: compare empirical returns vs model samples.
     simulated = model.sample_returns(rng, args.fit_samples)
     plot_fit_overlay(
         out_dir / "fit_overlay.png",
@@ -303,6 +325,7 @@ def run_for_ticker(
 
 
 def parse_sample_sizes(raw: str) -> list[int]:
+    """Parse comma-separated sample sizes (fallback to default grid)."""
     if not raw:
         return default_sample_sizes()
     sizes = []
@@ -315,6 +338,7 @@ def parse_sample_sizes(raw: str) -> list[int]:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """CLI for the real-world analysis pipeline."""
     parser = argparse.ArgumentParser(
         description="Real-world VaR analysis using a double-Poisson jump model."
     )

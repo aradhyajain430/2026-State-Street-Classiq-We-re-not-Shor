@@ -56,6 +56,7 @@ def write_csv(path: Path, rows: list[dict[str, float | int]]) -> None:
 
 
 def cvar_from_returns(returns: np.ndarray, confidence: float) -> float:
+    """Compute CVaR as the mean of losses beyond the VaR threshold."""
     losses = -returns
     var = np.quantile(losses, confidence)
     tail = losses[losses >= var]
@@ -71,6 +72,7 @@ def cvar_trials(
     trials: int,
     rng: np.random.Generator,
 ) -> np.ndarray:
+    """Repeated CVaR estimates for error analysis."""
     estimates = np.empty(trials, dtype=float)
     for i in range(trials):
         returns = model.sample_returns(rng, n_samples)
@@ -128,6 +130,7 @@ def run(args: argparse.Namespace) -> None:
         seed = int(time.time() * 1_000_000) % (2**32 - 1)
     rng = np.random.default_rng(seed)
 
+    # High-sample reference CVaR for error measurement.
     reference_returns = model.sample_returns(rng, args.reference_samples)
     true_cvar = cvar_from_returns(reference_returns, args.confidence)
 
