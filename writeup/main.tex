@@ -1,0 +1,330 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{placeins}
+\title{We're Not Shor}
+\author{Tom Yao, Tudor Rosca, Aradhya Jain, Sebastian DeCosta, Eashan Iyer}
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{PeterShor.png}
+    \caption{Peter Shor's genuine reaction to our paper}
+    \label{fig:placeholder}
+\end{figure}
+\FloatBarrier
+\section{The VaR Problem}
+VaR or value at risk is a quantity that measures the maximum expected loss 
+over a given time period at a certain confidence level. For instance, 
+if your VaR for a one day time frame at a 95\% confidence interval is 
+1,000,000 dollars, then you would lose more than 1,000,000 dollars 
+in a single day due to random variation only 5\% of the time.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{NormalDist.png}
+    \caption{The VaR here is denoted by the vertical red line and is a percentage of the total portfolio value}
+    \label{fig:placeholder}
+\end{figure}
+Given a normal Gaussian distribution function $G$ with variations within a day and confidence level c, we can solve for VaR with the following:
+Assuming daily returns are normally distributed,
+\[
+g(x) = N(\mu, \sigma),
+\]
+the Value at Risk (VaR) at confidence level \(c\) is computed using the lower-tail quartile of the distribution.
+\[
+\int_{-\infty}^z g(t) \: dt = G(z) =(1 - c)\]
+\[
+VaR = portfolio\_value \cdot (\mu - \sigma \cdot z)
+\]
+Where the distribution function measures the percent change in the portfolio over a single day. And $G(z)$ is the cdf function. \\
+Essentially, we find when the cdf equals 1-c and get the z-score at that point.  We then use that z-score calculate the percent change which is equal to 
+$(\mu - \sigma * z)$. Then we multiply the percent change by the portfolio value to 
+get the net loss in portfolio value.\\
+In our code, we accomplished this with built in functions from packages
+\begin{verbatim}
+      model = GaussianModel(mu=args.mu, sigma=args.sigma)
+      confidence = args.confidence
+      portfolio_value = args.portfolio
+     theoretical_var_gaussian(model, confidence, portfolio_value)
+\end{verbatim}
+For more complicated distributions, the theoretical value is much harder to obtain (the integral/cdf) becomes much harder to solve analytically. We then have two approximation methods that will give us a quick and dirty solution, saving time and resources and improving the flexibility of our calculation: Classical Monte Carlo and Iterative Quantum Amplitude Estimation.  
+\section{Classical Solution (Monte Carlo)}
+We first generate a random number $r$ from the Gaussian distribution. 
+$$r \in \mathcal{N}(\mu,\sigma)$$
+And then, we check if that number falls into the 5\% tail portion which would indicate a "breach" of the VaR. Finally, we take a ratio of all breached sample points versus the total number of sample points to get an approximation for the VaR. This is summarized in the code below. 
+\begin{verbatim}
+    
+def monte_carlo_var(
+    model: GaussianModel,
+    confidence: float,
+    n_samples: int,
+    portfolio_value: float = 1.0,
+    rng: np.random.Generator | None = None,
+) -> float:
+    """Monte Carlo estimate of VaR using Gaussian sampling."""
+
+    if rng is None:
+        rng = np.random.default_rng()
+    returns = model.sample_returns(rng, n_samples)
+    losses = -portfolio_value * returns
+    return float(np.quantile(losses, confidence))
+
+
+\end{verbatim}
+Running the simulation with $\mu = 0.0005,\sigma = 0.02, c = 0.95$, we received the following graphs.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{MonteCarloError.png}
+    \caption{log(Error) = -0.50 log(N)}
+    \label{fig:placeholder}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{MonteCarloConvergence.png}
+    \caption{Converges to theoretical for $N\approx5000$}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsection*{The Jump-Diffusion Simulation Model}
+We wanted to consider a more complex model of financial markets to factor in the concept of ``jump days'' to see if it could be an even better model \\
+
+The total return $R$ for a given time step is simulated by stacking two independent distributions: a \textbf{Normal distribution} for routine noise and a \textbf{Poisson-triggered Normal distribution} for shocks (sudden drops and gains).
+
+\subsubsection*{1. Diffusion Component (Continuous Noise)}
+The routine market movement follows a Gaussian distribution:
+\[ r_{diff} \sim N(\mu, \sigma^2) \]
+
+\subsubsection*{2. Jump Component (Discrete Shocks)}
+The number of jumps $N$ in a single period follows a Poisson distribution:
+\[ N \sim \text{Poisson}(\lambda) \]
+
+If $N > 0$, the size of the jumps is the sum of $N$ independent random values selected from a normal distribution:
+\begin{equation}
+    r_{jump} = \sum_{i=1}^{N} J_i, \quad \textnormal{where } J_i \sim N(\mu_j, \sigma_j^2)
+\end{equation} 
+
+\subsubsection*{3. Total Simulated Return}
+The final return used in the Monte Carlo simulation is the sum of these two processes:
+\[ R_{total} = r_{diff} + r_{jump} \]
+
+This "stacked" approach allows the model to capture the \textbf{Fat Tails} (kurtosis) and \textbf{Skewness} observed in real market data, which standard Gaussian models often ignore.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{error_scaling.png}
+    \caption{Jump-Diffusion Error Scaling}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{var_convergence.png}
+    \caption{Jump-Diffusion Method Convergence}
+    \label{fig:placeholder}
+\end{figure}
+\subsection{Comparing the Models}
+
+\subsubsection{Data}
+
+We tested the accuracy of the Poisson model and the Gaussian model by initializing the models based off the data from 2024 and making a prediction for 2025 which we then checked against the true market behavior in 2025.
+
+Based off 252 trading days in a year and a confidence level of $95\%$, there should be $252\cdot0.05=12.6$ days when the loss is more than the VaR. We can compare this to how many days the stock underperformed the calculated VaR from the two methods and calculate an accuracy.
+
+\begin{equation}
+    accuracy=1-\frac{|{num\_breaches-12.6|}}{12.6}
+\end{equation}
+
+\begin{table}[H]
+    \centering
+    \caption{Backtesting Results: Poisson vs. Gaussian VaR (95\% Confidence)}
+    \begin{tabular}{llccc}
+        \toprule
+        \textbf{Ticker} & \textbf{Method} & \textbf{VaR Prediction} & \textbf{Breaches} & \textbf{Accuracy} \\ 
+        \midrule
+        \multirow{2}{*}{SPY} & Poisson & 1.21\% & 19 & 48.6\% \\
+                             & Gaussian & 1.25\% & 19 & 48.6\% \\
+        \midrule
+        \multirow{2}{*}{TSLA} & Poisson & 5.58\% & 13 & 96.4\% \\
+                              & Gaussian & 6.17\% & 9 & 71.7\% \\
+        \midrule
+        \multirow{2}{*}{NVDA} & Poisson & 4.91\% & 10 & 79.7\% \\
+                              & Gaussian & 5.61\% & 8 & 63.7\% \\
+        \midrule
+        \multirow{2}{*}{COIN} & Poisson & 7.54\% & 9 & 71.7\% \\
+                              & Gaussian & 8.40\% & 3 & 23.9\% \\
+        \midrule
+        \multirow{2}{*}{MDB} & Poisson & 4.68\% & 15 & 80.5\% \\
+                             & Gaussian & 6.16\% & 7 & 55.8\% \\
+        \midrule
+        \multirow{2}{*}{RIVN} & Poisson & 7.00\% & 5 & 39.8\% \\
+                              & Gaussian & 8.25\% & 0 & 0.0\% \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:backtest_results}
+\end{table}
+\subsubsection{Discussion}
+\large{\bf{SPY, S\&P 500:}}
+
+The two methods had the same accuracy because the S\&P is not very volatile which the Poisson method is better at modeling.
+
+\noindent\large{\bf{Other Stocks}}
+
+The other stocks shown are more volaltile than the S\&P and are therefore modeled more accurately by the Poisson method which accounts for market volatility. For example Coinbase's (COIN) price acts as a high-beta leveraged proxy for the cryptocurrency market, making it hyper-sensitive to "jump" events like sudden regulatory shifts, Bitcoin price shocks, and the evolving sentiment of the crypto-fear-and-greed index. Rivian (RIVN) is another good example. As a pre-profit EV manufacturer, its valuation is driven by binary production milestones—such as the critical 2026 R2 launch—and extreme sensitivity to macro headwinds like interest rate changes and the repeal of federal EV tax credits.
+
+
+\section{Quantum Solution: Iterative Amplitude Estimation (IQAE)}
+
+The algorithm used to simulate the Quantum Monte Carlo method is known as \textbf{Quantum Amplitude Estimation (QAE)}. This method leverages quantum interference to estimate the value of an unknown parameter $a$ with a significant speedup over classical sampling.
+
+\subsection{The Premise of QAE}
+Consider a quantum state that is initialized in the following form: 
+\[ |\Psi\rangle = \sqrt{1-a}|\psi_0\rangle|0\rangle + \sqrt{a}|\psi_1\rangle|1\rangle \]
+
+In our specific Value at Risk (VaR) implementation, the state preparer constructs a final state of the form:
+\[ |\Psi_{final}\rangle = \sum_{i > i^*} \sqrt{p_i}|i\rangle|0\rangle + \sum_{i \leq i^*} \sqrt{p_i}|i\rangle|1\rangle \]
+QAE utilizes a Grover-like operator to estimate the value of $a$, which represents the total probability mass in the "loss" territory.
+
+\subsection{Quantum Probability Encoding}
+The reduction of the VaR problem into a quantum circuit follows a two-step process:
+\begin{enumerate}
+    \item \textbf{State Preparation:} A quantum circuit $\mathcal{A}$ is constructed to prepare a superposition whose amplitudes correspond to the discretized probability distribution (e.g., a discretized Gaussian or Jump-Diffusion). The probability of finding $X=x$ is encoded in the qubit state with the binary value $|x\rangle$.
+    \item \textbf{Comparator Circuit:} A separate circuit checks whether the sampled value $|x\rangle$ lies below the candidate threshold $x^*$. If $x \leq x^*$, a dedicated ``flag'' qubit is flipped to $|1\rangle$; otherwise, it remains $|0\rangle$.
+\end{enumerate}
+
+After these steps, the probability of measuring the flag qubit in state $|1\rangle$ is exactly the cumulative probability we want to determine. The problem is thus reduced to estimating a single unknown probability $a$.
+
+
+
+\subsection{Why IQAE is Used Instead of Simple Sampling}
+If one were to simply measure the flag qubit $N$ times, the approach would be equivalent to \textbf{Classical Monte Carlo sampling}, where the estimation error $\epsilon$ shrinks at a rate of $1/\sqrt{N}$.
+
+\textbf{Iterative Quantum Amplitude Estimation (IQAE)} improves upon this via coherent amplitude amplification. It defines a Grover-like operator $\mathcal{Q}$ that acts as a rotation in a two-dimensional subspace spanned by the ``success'' states (flag $=1$) and ``failure'' states (flag $=0$). Applying $\mathcal{Q}$ multiple times amplifies the sensitivity of the quantum state to the underlying probability, allowing for much finer information extraction per execution.
+
+\subsection{Mathematical Mechanism of IQAE}
+Rather than estimating $a$ directly, IQAE estimates an angle $\theta$ such that:
+\[ a = \sin^2(\theta) \]
+After applying the Grover operator $\mathcal{Q}$ exactly $k$ times, the probability of measuring the flag qubit as $|1\rangle$ becomes:
+\[ p_k = \sin^2((2k+1)\theta) \]
+By measuring how this probability oscillates across several values of $k$, the algorithm gathers information about $\theta$. Larger values of $k$ correspond to larger rotations and therefore greater sensitivity, yielding an error scaling of $O(1/\epsilon)$, a quadratic speedup over the classical $O(1/\epsilon^2)$.
+
+\subsection{The ``Iterative'' Refinement}
+Unlike standard QAE, IQAE does not require Quantum Phase Estimation or the Quantum Fourier Transform, making it more suitable for near-term quantum hardware.
+\begin{itemize}
+    \item \textbf{Interval Maintenance:} The algorithm maintains a classical confidence interval that is guaranteed to contain the true value of $\theta$.
+    \item \textbf{Recursive Shrinking:} For a chosen value of $k$, measurement statistics restrict $(2k+1)\theta$ to a specific range. This new range is intersected with the current interval to shrink the possible values of $\theta$.
+    \item \textbf{Ambiguity Avoidance:} By carefully selecting $k$ to avoid the periodicity of the sine function, the interval for $\theta$ shrinks steadily until the desired precision is reached.
+\end{itemize}
+
+\subsection{Implementation Details (Classiq IQAE)}
+We discretize the Gaussian distribution into $2^n$ grid points spanning $\mu \pm 3\sigma$ and normalize the probabilities. These probabilities are loaded into the amplitude distribution using Classiq's \texttt{inplace\_prepare\_state} on a quantum register. A comparator circuit (payoff) flips a single indicator qubit when the asset index is below a threshold $i^*$, so the probability of measuring $|1\rangle$ on the indicator equals the tail probability.
+
+IQAE is run with a fixed number of shots through an \texttt{ExecutionPreferences} object, which allows us to study shot-noise effects separately from the $\epsilon$-driven query complexity. For the Gaussian experiments we compute a classical CDF and find the VaR index $i^*$ via classical bisection; IQAE then estimates the tail probability at that index. The estimated probability $\hat{\alpha}$ is mapped back to a VaR estimate using the analytic inverse CDF, and error is reported against the analytic Gaussian VaR.
+
+We perform a grid search over $\epsilon$ and the IQAE confidence parameter to tune hyperparameters, then reuse the best pair for the shots-scaling experiment. We also run a separate epsilon-scaling experiment with a fixed shot budget to highlight the expected $O(1/\epsilon)$ query scaling. The plots below are placed immediately after the relevant discussion.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{iqae_epsilon_scaling.png}
+    \caption{IQAE scaling: total oracle queries vs $1/\epsilon$ (and log-log slope).}
+    \label{fig:iqae_epsilon_scaling}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{iqae_shots_scaling.png}
+    \caption{IQAE shot-noise scaling: VaR error vs number of shots (log-log).}
+    \label{fig:iqae_shots_scaling}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{iqae_eps_alpha.png}
+    \caption{Hyperparameter tuning: grid search over $\epsilon$ and confidence parameter.}
+    \label{fig:iqae_hyperparam_tuning}
+\end{figure}
+\FloatBarrier
+
+\section{Comparison}
+\subsection{Scaling Contrast: Monte Carlo vs IQAE}
+Classical Monte Carlo (MC) estimation error scales as $O(1/\sqrt{N})$, so achieving error
+$\epsilon$ typically requires $N = O(1/\epsilon^2)$ samples. Iterative Quantum Amplitude
+Estimation (IQAE) reduces the \emph{query} complexity to $O(1/\epsilon)$, yielding a
+quadratic asymptotic advantage in the number of oracle calls. Importantly, this does
+\emph{not} remove shot noise: when we estimate a probability from repeated measurements,
+the error still falls like $O(1/\sqrt{\text{shots}})$ for both MC sampling and IQAE runs.
+The speedup therefore appears in the number of \emph{queries} (Grover iterations / oracle
+uses) required to reach a target $\epsilon$, not in the scaling of error with the number
+of shots. This is why Figures~\ref{fig:iqae_epsilon_scaling} and
+\ref{fig:iqae_shots_scaling} are separated: the former isolates query scaling, while the
+latter isolates shot noise.
+
+\subsection{Asymptotic Advantage vs Practical Overheads}
+IQAE's advantage is asymptotic: it appears as $\epsilon \to 0$ when counting oracle
+queries. In practice (especially on a simulator), the gap is narrowed by:
+\begin{itemize}
+    \item \textbf{Per-query overhead:} each IQAE query involves deeper circuits, controlled
+    Grover iterations, and more complex state preparation than a single classical sample.
+    \item \textbf{Finite shots:} for fixed shot budgets, statistical noise can dominate at
+    small $\epsilon$ and mask the quadratic advantage in query complexity.
+    \item \textbf{Bisection cost:} VaR estimation requires multiple probability estimates
+    at different thresholds, so total runtime includes the search loop as well as IQAE.
+\end{itemize}
+Thus, IQAE's scaling is a statement about \emph{oracle complexity}, not necessarily wall-clock
+speedup in near-term settings. Our results reflect this: the slopes match theory, but the
+constant factors and simulator overheads compress the practical gap.
+
+\subsection{Modeling Error vs Estimation Error}
+Both classical and quantum pipelines inherit \textbf{modeling/discretization error} from
+the choice of distribution (Gaussian vs jump-diffusion), grid resolution, and truncation
+range. IQAE improves \textbf{estimation error} per query, but does not fix model error.
+In our backtesting experiments, shifts in VaR driven by the jump-diffusion model were
+often larger than estimator noise, emphasizing that accurate modeling can dominate the
+overall error budget. A fair comparison therefore separates:
+\begin{itemize}
+    \item \textbf{Model error:} distributional mismatch + discretization.
+    \item \textbf{Estimation error:} sampling / amplitude estimation noise.
+\end{itemize}
+
+\subsection{Comparison Plots}
+Figure~\ref{fig:comparison_error_vs_queries} summarizes the core scaling difference on
+log-log axes: MC error drops as $N^{-1/2}$ while IQAE error drops as $N^{-1}$ with respect
+to total probability queries. Figure~\ref{fig:comparison_queries_vs_inv_eps} reframes the
+same result as queries versus $1/\epsilon$, showing the quadratic gap between MC and IQAE.
+Finally, Figure~\ref{fig:comparison_shots_vs_eps} separates shot noise from query
+complexity: the left panel shows both methods scale as $\text{shots}^{-1/2}$, while the
+right panel shows the IQAE query scaling with $1/\epsilon$.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{comparison_error_vs_queries.png}
+    \caption{Error vs total queries (MC vs IQAE) on log-log axes.}
+    \label{fig:comparison_error_vs_queries}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{comparison_queries_vs_inv_eps.png}
+    \caption{Query scaling vs $1/\epsilon$ (MC vs IQAE).}
+    \label{fig:comparison_queries_vs_inv_eps}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{comparison_shots_vs_eps.png}
+    \caption{Shot-noise scaling vs query-complexity scaling.}
+    \label{fig:comparison_shots_vs_eps}
+\end{figure}
+
+\section{Conclusion}
+
+Because frankly, we're not Shor. 
+\end{document}
