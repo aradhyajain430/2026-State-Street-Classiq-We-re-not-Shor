@@ -12,6 +12,10 @@ from classiq.applications.iqae.iqae import IQAE
 from classiq.interface.executor.execution_preferences import ExecutionPreferences
 from classiq.interface.generator.model import Constraints, Preferences
 
+import classiq
+
+classiq.authenticate()
+
 if __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
