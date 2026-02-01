@@ -118,16 +118,23 @@ This "stacked" approach allows the model to capture the \textbf{Fat Tails} (kurt
 
 \begin{figure}[H]
     \centering
+    \includegraphics[width=1\linewidth]{TSLA_fat_tail.png}
+    \caption{Fat Tail Demo for Tesla Stock}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
     \includegraphics[width=1\linewidth]{error_scaling.png}
-    \caption{Jump-Diffusion Error Scaling}
-    \label{fig:jump_error_scaling}
+    \caption{Error Scaling for Poisson Method}
+    \label{fig:placeholder}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{var_convergence.png}
-    \caption{Jump-Diffusion Method Convergence}
-    \label{fig:jump_var_convergence}
+    \caption{Convergence for Poisson Method}
+    \label{fig:placeholder}
 \end{figure}
 \subsection{Comparing the Models}
 
@@ -169,6 +176,13 @@ Based off 252 trading days in a year and a confidence level of $95\%$, there sho
     \end{tabular}
     \label{tab:backtest_results}
 \end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{accuracy_comp.png}
+    \caption{Poisson vs Gaussian Accuracy}
+    \label{fig:placeholder}
+\end{figure}
 \subsubsection{Discussion}
 \large{\bf{SPY, S\&P 500:}}
 
@@ -176,9 +190,7 @@ The two methods had the same accuracy because the S\&P is not very volatile whic
 
 \noindent\large{\bf{Other Stocks}}
 
-The other stocks shown are more volaltile than the S\&P and are therefore modeled more accurately by the Poisson method which accounts for market volatility. For example Coinbase's (COIN) price acts as a high-beta leveraged proxy for the cryptocurrency market, making it hyper-sensitive to "jump" events like sudden regulatory shifts, Bitcoin price shocks, and the evolving sentiment of the crypto-fear-and-greed index. Rivian (RIVN) is another good example. As a pre-profit EV manufacturer, its valuation is driven by binary production milestones—such as the critical 2026 R2 launch—and extreme sensitivity to macro headwinds like interest rate changes and the repeal of federal EV tax credits.
-
-
+The other stocks shown are more volaltile than the S\&P and are therefore modeled more accurately by the Poisson method which accounts for market volatility. For example Coinbase's (COIN) price acts as a high-beta leveraged proxy for the cryptocurrency market, making it hyper-sensitive to "jump" events like sudden regulatory shifts, Bitcoin price shocks, and the evolving sentiment of the crypto-fear-and-greed index. Rivian (RIVN) is another good example. As a pre-profit EV manufacturer, its valuation is driven by binary production milestonessuch as the critical 2026 R2 launchand extreme sensitivity to macro headwinds like interest rate changes and the repeal of federal EV tax credits.
 \section{Quantum Solution: Iterative Amplitude Estimation (IQAE)}
 
 The algorithm used to simulate the Quantum Monte Carlo method is known as \textbf{Quantum Amplitude Estimation (QAE)}. This method leverages quantum interference to estimate the value of an unknown parameter $a$ with a significant speedup over classical sampling.
@@ -406,6 +418,24 @@ credentials for the synthesis step.
     \label{fig:real_world_multi_panel}
 \end{figure}
 
+\section{CVaR Extension}
+Beyond VaR, we also study Conditional Value at Risk (CVaR), or Expected Shortfall,
+which measures the average loss in the tail beyond the VaR threshold. CVaR is more
+informative for extreme events and is a common risk metric in practice.
+
+We estimate CVaR with Monte Carlo sampling under the same Gaussian return model used
+earlier, and analyze convergence and error scaling across sample sizes. We also run
+an IQAE-based CVaR routine by using amplitude estimation to infer tail probability and
+mapping it to CVaR, allowing us to test the same scaling rules in the CVaR setting.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{cvar_multi_panel.png}
+    \caption{CVaR results: Monte Carlo convergence and error scaling, plus IQAE query and shot scaling.}
+    \label{fig:cvar_multi_panel}
+\end{figure}
+
+\FloatBarrier
 \section{Conclusion}
 We implemented classical Monte Carlo VaR and quantum IQAE VaR on both synthetic and
 realistic distributions, and observed the expected scaling behavior across settings.
@@ -413,9 +443,10 @@ Classically, error decays as $O(1/\sqrt{N})$ with samples; in the quantum pipeli
 IQAE shows the asymptotic $O(1/\epsilon)$ query scaling while shot noise still follows
 $O(1/\sqrt{\text{shots}})$. The jump-diffusion and double-Poisson fits emphasize that
 modeling assumptions and discretization dominate errors in real data, while IQAE
-primarily reduces estimation error per query. In the real-world extension, gold
-provides a stress-test for tail risk and still exhibits the same scaling signature
-seen in the Gaussian toy model.
+primarily reduces estimation error per query. The real-world extension (gold and
+S\&P 500) preserves the same scaling signature on fitted, fat-tailed data, and the
+CVaR extension shows that both classical and IQAE workflows carry over to tail-average
+risk metrics.
 
 \subsection*{Future Work}
 There are several clear next steps. First, extend the IQAE real-world experiments to
