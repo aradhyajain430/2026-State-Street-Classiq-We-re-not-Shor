@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1769912688.60524 "c:/Users/Dell/Desktop/IQuHack/writeup/main.tex" "main.pdf" "main" 1769912692.98481 0
+["pdflatex"] 1769914351.46409 "c:/Users/Dell/Desktop/IQuHack/writeup/main.tex" "main.pdf" "main" 1769914358.48654 0
   "C:/Users/Dell/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1769911740 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/Dell/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1440.pk" 1769904697 16968 34af1eb7b38024e2e471f671d6982f2c ""
   "C:/Users/Dell/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1728661503 11947726 374218e94e1d4976a35fac1ffcf4817b ""
@@ -60,16 +60,16 @@
   "MonteCarloError.png" 1769904584 136676 b1d008a850032f2320a8313961411131 ""
   "NormalDist.png" 1769904584 128190 be8831be5060763384e84d03c02e3491 ""
   "PeterShor.png" 1769904584 779865 582d7a86783adb2e8e615e7a52c45b0d ""
-  "c:/Users/Dell/Desktop/IQuHack/writeup/main.tex" 1769912682 18886 4d219c6e20f7c346496ea6e2ec723738 ""
-  "comparison_error_vs_queries.png" 1769912337 128335 bf6d992731702d1b6c8a2f0f37e8b143 ""
-  "comparison_queries_vs_inv_eps.png" 1769912338 118974 56ef9f6e2c162147f321912f2bc3fade ""
-  "comparison_shots_vs_eps.png" 1769912340 161919 40188cea54e8bd781aa02ab20dcdca87 ""
+  "c:/Users/Dell/Desktop/IQuHack/writeup/main.tex" 1769912985 18900 46e76a1775fbd3440c6ab0687ec0dfcc ""
+  "comparison_error_vs_queries.png" 1769914341 115232 b06159f8d02b7a03eeaf7b19bbf4f179 ""
+  "comparison_queries_vs_inv_eps.png" 1769914343 101006 c5decfb3fe39071249646a6a9248679a ""
+  "comparison_shots_vs_eps.png" 1769914345 150669 9f62ab843e8118c6efd0f8fa4e8a8396 ""
   "error_scaling.png" 1769904584 85253 61c0324e1c6b5d28aae5c6b88563f812 ""
   "iqae_eps_alpha.png" 1769899483 72736 d559ecf6dcb0b902d11064c1e5c1a448 ""
   "iqae_epsilon_scaling.png" 1769901059 111865 61d7d068d888244766efa23dd363e3aa ""
   "iqae_shots_scaling.png" 1769900704 72777 608fb2566172a82309beaa49393c8be3 ""
-  "main.aux" 1769912692 4830 68f851d3d19ca71eff8fd90aa08f40cc "pdflatex"
-  "main.tex" 1769912682 18886 4d219c6e20f7c346496ea6e2ec723738 ""
+  "main.aux" 1769914357 4830 42105c977effbe7ad4134b25a28a466d "pdflatex"
+  "main.tex" 1769912985 18900 46e76a1775fbd3440c6ab0687ec0dfcc ""
   "var_convergence.png" 1769904584 68553 bbe43911698165598461d15b1e7d1d77 ""
   (generated)
   "main.aux"

@@ -1,4 +1,5 @@
 import argparse
+import csv
 import logging
 import os
 import sys
@@ -24,6 +25,18 @@ def geom_series(start: float, ratio: float, count: int) -> List[int]:
     return values
 
 
+def write_csv(path: str, rows: List[dict]) -> None:
+    if not rows:
+        return
+    parent = os.path.dirname(path)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    with open(path, "w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Plot IQAE VaR error vs num_shots."
@@ -42,6 +55,7 @@ def main():
     parser.add_argument("--shots-ratio", type=float, default=1.4)
     parser.add_argument("--shots-count", type=int, default=12)
     parser.add_argument("--out", type=str, default="quantum/iqae_shots_scaling.png")
+    parser.add_argument("--csv", type=str, default=None, help="Optional CSV output path.")
     parser.add_argument("--show", action="store_true")
     parser.add_argument("--log-level", type=str, default="INFO")
     args = parser.parse_args()
@@ -53,6 +67,7 @@ def main():
 
     shots = geom_series(args.shots_start, args.shots_ratio, args.shots_count)
     errors = []
+    csv_rows = []
 
     for n_shots in shots:
         LOGGER.info("Running IQAE VaR for num_shots=%s", n_shots)
@@ -69,7 +84,9 @@ def main():
             max_width=args.max_width,
             machine_precision=args.machine_precision,
         )
-        errors.append(res["error"])
+        error = float(res["error"])
+        errors.append(error)
+        csv_rows.append({"shots": int(n_shots), "var_error": error})
 
     shots_arr = np.array(shots, dtype=float)
     errors_arr = np.array(errors, dtype=float)
@@ -95,6 +112,9 @@ def main():
     fig.tight_layout()
     fig.savefig(args.out, dpi=200)
     print(f"Saved plot to: {args.out}")
+
+    if args.csv:
+        write_csv(args.csv, csv_rows)
 
     if args.show:
         plt.show()

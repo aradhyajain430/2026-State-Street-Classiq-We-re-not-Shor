@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.11)  31 JAN 2026 21:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.11)  31 JAN 2026 21:52
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -336,28 +336,32 @@ Overfull \hbox (0.6299pt too wide) in paragraph at lines 294--295
 []\OT1/cmr/bx/n/14.4 Estimation er-ror: \OT1/cmr/m/n/14.4 sam-pling / am-pli-tude es-ti-ma-tion noise. 
  []
 
-<comparison_error_vs_queries.png, id=82, 450.9648pt x 312.2064pt>
+<comparison_error_vs_queries.png, id=82, 505.89pt x 325.215pt>
 File: comparison_error_vs_queries.png Graphic file (type png)
 <use comparison_error_vs_queries.png>
 Package pdftex.def Info: comparison_error_vs_queries.png  used on input line 308.
-(pdftex.def)             Requested size: 390.0pt x 270.01195pt.
-<comparison_queries_vs_inv_eps.png, id=83, 445.1832pt x 312.2064pt>
+(pdftex.def)             Requested size: 390.0pt x 250.71902pt.
+<comparison_queries_vs_inv_eps.png, id=83, 505.89pt x 325.215pt>
 File: comparison_queries_vs_inv_eps.png Graphic file (type png)
 <use comparison_queries_vs_inv_eps.png>
 Package pdftex.def Info: comparison_queries_vs_inv_eps.png  used on input line 315.
-(pdftex.def)             Requested size: 390.0pt x 273.51816pt.
-<comparison_shots_vs_eps.png, id=84, 618.99255pt x 322.3242pt>
+(pdftex.def)             Requested size: 390.0pt x 250.71902pt.
+<comparison_shots_vs_eps.png, id=84, 722.7pt x 303.534pt>
 File: comparison_shots_vs_eps.png Graphic file (type png)
 <use comparison_shots_vs_eps.png>
 Package pdftex.def Info: comparison_shots_vs_eps.png  used on input line 322.
-(pdftex.def)             Requested size: 390.0pt x 203.08499pt.
+(pdftex.def)             Requested size: 390.0pt x 163.79938pt.
 
 
 [17]
 
 [18 <./comparison_error_vs_queries.png>]
 
-[19 <./comparison_queries_vs_inv_eps.png> <./comparison_shots_vs_eps.png>] (main.aux)
+[19 <./comparison_queries_vs_inv_eps.png> <./comparison_shots_vs_eps.png>]
+
+[20
+
+] (main.aux)
  ***********
 LaTeX2e <2024-06-01> patch level 2
 L3 programming layer <2024-08-30>
@@ -376,9 +380,9 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  57i,10n,65p,767b,278s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\Dell\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1440.pk><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (19 pages, 1975663 bytes).
+Output written on main.pdf (20 pages, 1966077 bytes).
 PDF statistics:
- 160 PDF objects out of 1000 (max. 8388607)
+ 163 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  61 words of extra memory for PDF output out of 10000 (max. 10000000)
 

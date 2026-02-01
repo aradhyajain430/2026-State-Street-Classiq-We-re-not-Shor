@@ -1,101 +1,299 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import subprocess
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def _style_axes(ax: plt.Axes) -> None:
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def run_command(cmd: list[str]) -> None:
+    subprocess.run(cmd, check=True)
+
+
+def run_classical(
+    outdir: Path,
+    mu: float,
+    sigma: float,
+    confidence: float,
+    trials: int,
+    seed: int,
+    sample_sizes: list[int] | None,
+) -> None:
+    cmd = [
+        sys.executable,
+        str(ROOT / "classical" / "run_classical.py"),
+        "--outdir",
+        str(outdir),
+        "--mu",
+        str(mu),
+        "--sigma",
+        str(sigma),
+        "--confidence",
+        str(confidence),
+        "--trials",
+        str(trials),
+        "--seed",
+        str(seed),
+    ]
+    if sample_sizes:
+        cmd.extend(["--sample-sizes", ",".join(str(v) for v in sample_sizes)])
+    run_command(cmd)
+
+
+def run_quantum_epsilon(
+    out_csv: Path,
+    out_plot: Path,
+    mu: float,
+    sigma: float,
+    alpha: float,
+    num_shots: int,
+    num_qubits: int,
+) -> None:
+    cmd = [
+        sys.executable,
+        str(ROOT / "quantum" / "iqae_epsilon_scaling.py"),
+        "--out",
+        str(out_plot),
+        "--csv",
+        str(out_csv),
+        "--mu",
+        str(mu),
+        "--sigma",
+        str(sigma),
+        "--alpha",
+        str(alpha),
+        "--num-shots",
+        str(num_shots),
+        "--num-qubits",
+        str(num_qubits),
+    ]
+    run_command(cmd)
+
+
+def run_quantum_shots(
+    out_csv: Path,
+    out_plot: Path,
+    mu: float,
+    sigma: float,
+    alpha: float,
+    num_qubits: int,
+) -> None:
+    cmd = [
+        sys.executable,
+        str(ROOT / "quantum" / "iqae_shots_scaling.py"),
+        "--out",
+        str(out_plot),
+        "--csv",
+        str(out_csv),
+        "--mu",
+        str(mu),
+        "--sigma",
+        str(sigma),
+        "--alpha",
+        str(alpha),
+        "--num-qubits",
+        str(num_qubits),
+    ]
+    run_command(cmd)
+
+
+def load_csv(path: Path) -> list[dict[str, float]]:
+    with path.open("r", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        return [{k: float(v) for k, v in row.items()} for row in reader]
+
+
+def plot_error_vs_queries(
+    mc_samples: np.ndarray,
+    mc_error: np.ndarray,
+    iqae_queries: np.ndarray,
+    iqae_error: np.ndarray,
+    output_path: Path,
+) -> None:
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    ax.loglog(mc_samples, mc_error, "o-", label="MC error vs samples")
+    ax.loglog(iqae_queries, iqae_error, "s-", label="IQAE error vs queries")
+    ax.set_xlabel("Total probability queries")
+    ax.set_ylabel("VaR absolute error")
+    ax.set_title("Error vs Total Queries (log-log)")
     ax.grid(True, which="both", linestyle="--", alpha=0.4)
-    ax.set_axisbelow(True)
-
-
-def _save(fig: plt.Figure, output_dir: Path, filename: str) -> None:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_dir / filename, dpi=200, bbox_inches="tight")
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=200)
     plt.close(fig)
 
 
-def plot_error_vs_queries(output_dir: Path) -> None:
-    queries = np.logspace(2, 5, 10)
-    mc_error = 1.0 / np.sqrt(queries)
-    iqae_error = 0.4 / queries
+def plot_queries_vs_inv_eps(
+    mc_samples: np.ndarray,
+    mc_error: np.ndarray,
+    iqae_eps: np.ndarray,
+    iqae_queries: np.ndarray,
+    output_path: Path,
+) -> None:
+    inv_eps_mc = 1.0 / mc_error
+    inv_eps_iqae = 1.0 / iqae_eps
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
-    ax.loglog(queries, mc_error, "o-", label="MC ~ 1/sqrt(N)")
-    ax.loglog(queries, iqae_error, "s-", label="IQAE ~ 1/N")
-    ax.set_xlabel("Total probability queries")
-    ax.set_ylabel("VaR error (placeholder)")
-    ax.set_title("Placeholder: Error vs Queries (log-log)")
-    _style_axes(ax)
+    ax.loglog(inv_eps_mc, mc_samples, "o-", label="MC (epsilon ≈ error)")
+    ax.loglog(inv_eps_iqae, iqae_queries, "s-", label="IQAE")
+    ax.set_xlabel("1 / epsilon")
+    ax.set_ylabel("Total probability queries")
+    ax.set_title("Queries vs 1/epsilon (log-log)")
+    ax.grid(True, which="both", linestyle="--", alpha=0.4)
     ax.legend()
-    _save(fig, output_dir, "comparison_error_vs_queries.png")
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=200)
+    plt.close(fig)
 
 
-def plot_queries_vs_inv_eps(output_dir: Path) -> None:
-    eps = np.logspace(-1, -3, 10)
-    inv_eps = 1.0 / eps
-    queries_mc = 15.0 / (eps**2)
-    queries_iqae = 50.0 / eps
-
-    fig, ax = plt.subplots(figsize=(7, 4.5))
-    ax.loglog(inv_eps, queries_mc, "o-", label="MC ~ 1/eps^2")
-    ax.loglog(inv_eps, queries_iqae, "s-", label="IQAE ~ 1/eps")
-    ax.set_xlabel("1/epsilon")
-    ax.set_ylabel("Total probability queries (placeholder)")
-    ax.set_title("Placeholder: Queries vs 1/epsilon (log-log)")
-    _style_axes(ax)
-    ax.legend()
-    _save(fig, output_dir, "comparison_queries_vs_inv_eps.png")
-
-
-def plot_shots_vs_eps(output_dir: Path) -> None:
-    shots = np.logspace(2, 5, 10)
-    mc_error = 1.0 / np.sqrt(shots)
-    iqae_error = 0.9 / np.sqrt(shots)
-
-    eps = np.logspace(-1, -3, 10)
-    inv_eps = 1.0 / eps
-    iqae_queries = 50.0 / eps
-
+def plot_shots_vs_eps(
+    mc_samples: np.ndarray,
+    mc_error: np.ndarray,
+    iqae_shots: np.ndarray,
+    iqae_shot_error: np.ndarray,
+    iqae_eps: np.ndarray,
+    iqae_queries: np.ndarray,
+    output_path: Path,
+) -> None:
     fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(10, 4.2))
 
-    ax_left.loglog(shots, mc_error, "o-", label="MC shots")
-    ax_left.loglog(shots, iqae_error, "s-", label="IQAE shots")
-    ax_left.set_xlabel("Shots")
-    ax_left.set_ylabel("VaR error (placeholder)")
-    ax_left.set_title("Placeholder: Error vs Shots")
-    _style_axes(ax_left)
+    ax_left.loglog(mc_samples, mc_error, "o-", label="MC samples")
+    ax_left.loglog(iqae_shots, iqae_shot_error, "s-", label="IQAE shots")
+    ax_left.set_xlabel("Shots / Samples")
+    ax_left.set_ylabel("VaR absolute error")
+    ax_left.set_title("Error vs Shots")
+    ax_left.grid(True, which="both", linestyle="--", alpha=0.4)
     ax_left.legend()
 
-    ax_right.loglog(inv_eps, iqae_queries, "s-", label="IQAE ~ 1/eps")
-    ax_right.set_xlabel("1/epsilon")
-    ax_right.set_ylabel("Total queries (placeholder)")
-    ax_right.set_title("Placeholder: Queries vs 1/epsilon")
-    _style_axes(ax_right)
+    ax_right.loglog(1.0 / iqae_eps, iqae_queries, "s-", label="IQAE")
+    ax_right.set_xlabel("1 / epsilon")
+    ax_right.set_ylabel("Total queries")
+    ax_right.set_title("IQAE Queries vs 1/epsilon")
+    ax_right.grid(True, which="both", linestyle="--", alpha=0.4)
     ax_right.legend()
 
-    fig.suptitle("Placeholder: Shot Noise vs Query Scaling", y=1.02)
-    _save(fig, output_dir, "comparison_shots_vs_eps.png")
+    fig.suptitle("Shot Noise vs Query Scaling", y=1.02)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=200)
+    plt.close(fig)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Generate placeholder comparison plots for the writeup."
+        description="Run classical + quantum experiments and generate comparison plots."
     )
     parser.add_argument(
         "--out",
         type=Path,
-        default=Path(__file__).resolve().parents[1] / "writeup",
-        help="Output directory for placeholder PNGs.",
+        default=ROOT / "writeup",
+        help="Output directory for comparison PNGs.",
+    )
+    parser.add_argument(
+        "--work",
+        type=Path,
+        default=ROOT / "comparison" / "results",
+        help="Working directory for intermediate CSV/plots.",
+    )
+    parser.add_argument("--mu", type=float, default=0.0)
+    parser.add_argument("--sigma", type=float, default=1.0)
+    parser.add_argument("--alpha", type=float, default=0.05)
+    parser.add_argument("--confidence", type=float, default=0.95)
+    parser.add_argument("--num-qubits", type=int, default=7)
+    parser.add_argument("--num-shots", type=int, default=64)
+    parser.add_argument("--trials", type=int, default=200)
+    parser.add_argument("--seed", type=int, default=12345)
+    parser.add_argument(
+        "--sample-sizes",
+        type=str,
+        default="",
+        help="Optional comma-separated list of MC sample sizes.",
     )
     args = parser.parse_args()
 
-    plot_error_vs_queries(args.out)
-    plot_queries_vs_inv_eps(args.out)
-    plot_shots_vs_eps(args.out)
+    sample_sizes = None
+    if args.sample_sizes:
+        sample_sizes = [int(float(v.strip())) for v in args.sample_sizes.split(",") if v.strip()]
+
+    work_dir = args.work
+    classical_dir = work_dir / "classical"
+    quantum_dir = work_dir / "quantum"
+    classical_dir.mkdir(parents=True, exist_ok=True)
+    quantum_dir.mkdir(parents=True, exist_ok=True)
+
+    run_classical(
+        outdir=classical_dir,
+        mu=args.mu,
+        sigma=args.sigma,
+        confidence=args.confidence,
+        trials=args.trials,
+        seed=args.seed,
+        sample_sizes=sample_sizes,
+    )
+
+    run_quantum_epsilon(
+        out_csv=quantum_dir / "iqae_epsilon_scaling.csv",
+        out_plot=quantum_dir / "iqae_epsilon_scaling.png",
+        mu=args.mu,
+        sigma=args.sigma,
+        alpha=args.alpha,
+        num_shots=args.num_shots,
+        num_qubits=args.num_qubits,
+    )
+
+    run_quantum_shots(
+        out_csv=quantum_dir / "iqae_shots_scaling.csv",
+        out_plot=quantum_dir / "iqae_shots_scaling.png",
+        mu=args.mu,
+        sigma=args.sigma,
+        alpha=args.alpha,
+        num_qubits=args.num_qubits,
+    )
+
+    mc_rows = load_csv(classical_dir / "error_scaling.csv")
+    mc_samples = np.array([row["samples"] for row in mc_rows], dtype=float)
+    mc_error = np.array([row["abs_err"] for row in mc_rows], dtype=float)
+
+    iqae_eps_rows = load_csv(quantum_dir / "iqae_epsilon_scaling.csv")
+    iqae_eps = np.array([row["epsilon"] for row in iqae_eps_rows], dtype=float)
+    iqae_queries = np.array([row["queries"] for row in iqae_eps_rows], dtype=float)
+    iqae_var_error = np.array([row["var_error"] for row in iqae_eps_rows], dtype=float)
+
+    iqae_shots_rows = load_csv(quantum_dir / "iqae_shots_scaling.csv")
+    iqae_shots = np.array([row["shots"] for row in iqae_shots_rows], dtype=float)
+    iqae_shot_error = np.array([row["var_error"] for row in iqae_shots_rows], dtype=float)
+
+    args.out.mkdir(parents=True, exist_ok=True)
+
+    plot_error_vs_queries(
+        mc_samples,
+        mc_error,
+        iqae_queries,
+        iqae_var_error,
+        args.out / "comparison_error_vs_queries.png",
+    )
+    plot_queries_vs_inv_eps(
+        mc_samples,
+        mc_error,
+        iqae_eps,
+        iqae_queries,
+        args.out / "comparison_queries_vs_inv_eps.png",
+    )
+    plot_shots_vs_eps(
+        mc_samples,
+        mc_error,
+        iqae_shots,
+        iqae_shot_error,
+        iqae_eps,
+        iqae_queries,
+        args.out / "comparison_shots_vs_eps.png",
+    )
 
 
 if __name__ == "__main__":

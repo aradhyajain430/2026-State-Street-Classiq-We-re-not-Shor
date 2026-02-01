@@ -1,4 +1,5 @@
 import argparse
+import csv
 import logging
 import os
 import sys
@@ -6,6 +7,7 @@ from typing import List
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats
 
 from classiq.applications.iqae.iqae import IQAE
 from classiq.interface.executor.execution_preferences import ExecutionPreferences
@@ -45,6 +47,18 @@ def total_queries(iterations_data) -> int:
     return total
 
 
+def write_csv(path: str, rows: List[dict]) -> None:
+    if not rows:
+        return
+    parent = os.path.dirname(path)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    with open(path, "w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="IQAE scaling vs epsilon (queries ~ 1/epsilon)."
@@ -65,6 +79,7 @@ def main():
         help="Comma list or 'auto' for 12 points /1.4 starting at 0.2.",
     )
     parser.add_argument("--out", type=str, default="quantum/iqae_epsilon_scaling.png")
+    parser.add_argument("--csv", type=str, default=None, help="Optional CSV output path.")
     parser.add_argument("--show", action="store_true")
     parser.add_argument("--log-level", type=str, default="INFO")
     args = parser.parse_args()
@@ -91,6 +106,7 @@ def main():
     true_alpha = float(cdf[index])
     iqae_var_run.GLOBAL_INDEX = index
     LOGGER.info("Using index=%s true_alpha=%.6f", index, true_alpha)
+    analytic_var = float(args.mu + args.sigma * scipy.stats.norm.ppf(args.alpha))
 
     constraints = Constraints(max_width=args.max_width) if args.max_width else None
     preferences = (
@@ -107,6 +123,7 @@ def main():
     exec_prefs = ExecutionPreferences(num_shots=args.num_shots)
 
     results = []
+    csv_rows = []
     for eps in epsilons:
         LOGGER.info("Running IQAE for epsilon=%.6f", eps)
         res = iqae.run(
@@ -115,12 +132,30 @@ def main():
             execution_preferences=exec_prefs,
         )
         queries = total_queries(res.iterations_data)
-        error = abs(float(res.estimation) - true_alpha)
-        results.append((eps, queries, error))
+        alpha_est = float(res.estimation)
+        alpha_est = float(np.clip(alpha_est, 1e-12, 1 - 1e-12))
+        alpha_error = abs(alpha_est - true_alpha)
+        var_est = float(args.mu + args.sigma * scipy.stats.norm.ppf(alpha_est))
+        var_error = abs(var_est - analytic_var)
+        results.append((eps, queries, alpha_error, var_error))
+        csv_rows.append(
+            {
+                "epsilon": float(eps),
+                "queries": int(queries),
+                "alpha_est": float(alpha_est),
+                "alpha_error": float(alpha_error),
+                "var_est": float(var_est),
+                "var_error": float(var_error),
+                "true_alpha": float(true_alpha),
+            }
+        )
 
     eps_arr = np.array([r[0] for r in results], dtype=float)
     queries_arr = np.array([r[1] for r in results], dtype=float)
     error_arr = np.array([r[2] for r in results], dtype=float)
+
+    if args.csv:
+        write_csv(args.csv, csv_rows)
 
     fig, ax = plt.subplots(1, 2, figsize=(10, 4))
 
