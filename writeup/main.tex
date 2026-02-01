@@ -183,6 +183,9 @@ The other stocks shown are more volaltile than the S\&P and are therefore modele
 
 The algorithm used to simulate the Quantum Monte Carlo method is known as \textbf{Quantum Amplitude Estimation (QAE)}. This method leverages quantum interference to estimate the value of an unknown parameter $a$ with a significant speedup over classical sampling.
 
+\subsection*{Execution Context (Simulator vs Hardware)}
+All quantum routines in this project are executed on simulators via the Classiq SDK, not on physical quantum hardware. Accessing real hardware would incur usage charges and requires explicit backend selection, so our results reflect simulated execution with shot noise rather than device noise.
+
 \subsection{The Premise of QAE}
 Consider a quantum state that is initialized in the following form: 
 \[ |\Psi\rangle = \sqrt{1-a}|\psi_0\rangle|0\rangle + \sqrt{a}|\psi_1\rangle|1\rangle \]
@@ -325,6 +328,73 @@ right panel shows the IQAE query scaling with $1/\epsilon$.
 \end{figure}
 
 \FloatBarrier
+\section{Real-World Extension: Gold and S\&P 500}
+\subsection{Motivation and Data}
+To test whether the same scaling intuition holds on realistic market data, we extend the
+analysis to real securities. We focus on gold (GC=F) as a fat-tail, downside-risk case
+study and the S\&P 500 (\^GSPC) as a broad-market baseline. Gold experienced extreme
+volatility and sharp drawdowns in late January 2026, making it a natural stress test for
+tail-risk modeling. Daily log-returns are fit to a double-Poisson jump-diffusion model
+(separate positive and negative jump processes) to capture skew and excess kurtosis. The
+fitted distribution is then used for Monte Carlo VaR estimation and convergence analysis,
+and the same fitted model is reused for amplitude encoding in the quantum workflow.
+
+\subsection{Double-Poisson Jump Model}
+We model returns as a diffusion component plus two independent Poisson jump processes:
+one for positive jumps and one for negative jumps. This separates tail behavior and
+captures the asymmetry observed in real data. The parameters
+$(\mu,\sigma,\lambda_+,\lambda_-,\mu_{J+},\sigma_{J+},\mu_{J-},\sigma_{J-})$
+are fitted from historical returns by thresholding outlier moves and estimating
+positive and negative jump statistics separately.
+
+\subsection{Classical Monte Carlo on Fitted Curves}
+Using the fitted model, we sample returns and compute VaR at the target confidence
+level. We then repeat this over a range of sample sizes to measure convergence and
+error scaling, analogous to the synthetic Gaussian experiments. This provides a direct
+classical baseline for real-world data and establishes a reference for the quantum
+experiments on the same fitted distribution.
+
+\subsection{Quantum Extension on Fitted Curves}
+The IQAE routine is reused with a new state-preparation step: the fitted double-Poisson
+distribution is discretized on a grid and encoded into amplitudes. The threshold oracle
+and bisection logic remain unchanged. This allows a direct comparison of query complexity
+and shot noise against the classical Monte Carlo baseline on a realistic, fat-tailed
+dataset.
+
+\subsection{Real-World Plots}
+Figures~\ref{fig:real_world_gold_fit} and~\ref{fig:real_world_spx_fit} show the fitted
+double-Poisson model against empirical returns. Figures~\ref{fig:real_world_convergence}
+and~\ref{fig:real_world_error_scaling} summarize classical convergence and scaling for
+both assets.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{real_world_gold_fit.png}
+    \caption{Gold returns vs fitted double-Poisson model.}
+    \label{fig:real_world_gold_fit}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{real_world_spx_fit.png}
+    \caption{S\&P 500 returns vs fitted double-Poisson model.}
+    \label{fig:real_world_spx_fit}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{real_world_convergence.png}
+    \caption{Monte Carlo VaR convergence on real-world fitted curves.}
+    \label{fig:real_world_convergence}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{real_world_error_scaling.png}
+    \caption{Monte Carlo error scaling on real-world fitted curves.}
+    \label{fig:real_world_error_scaling}
+\end{figure}
+
 \section{Conclusion}
 
 Because frankly, we're not Shor. 
