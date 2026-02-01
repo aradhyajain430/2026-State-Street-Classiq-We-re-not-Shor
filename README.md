@@ -1,6 +1,6 @@
 
 # We're not Shor Final Submission
-Team members: Eashan Iyer, (write your names)
+Team members: Eashan Iyer, Aradhya Jain, Sebastian DeCosta, Tudor Rosca, Tom Yao
 Brown University
 
 Presentation: https://docs.google.com/presentation/d/14nTP47RFCd-AP16AxCKQe18zIftDFV3tF5MNip__Ehk/edit?slide=id.g1ed75f95cf8_1_28099#slide=id.g1ed75f95cf8_1_28099 
