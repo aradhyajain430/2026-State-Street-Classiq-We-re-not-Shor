@@ -3,6 +3,8 @@
 Team members: Eashan Iyer, (write your names)
 Brown University
 
+Presentation: https://docs.google.com/presentation/d/14nTP47RFCd-AP16AxCKQe18zIftDFV3tF5MNip__Ehk/edit?slide=id.g1ed75f95cf8_1_28099#slide=id.g1ed75f95cf8_1_28099 
+
 ## The VaR problem:
 VaR or value at risk is a quantity that measures the maximum expected loss 
 over a given time period at a certain confidence level. For instance, 
