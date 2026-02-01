@@ -63,7 +63,7 @@ def main():
     ticker = "AAPL"
     confidence = 0.95
     trials = 100
-    sample_sizes = [100, 500, 1000, 5000, 10000, 25000, 50000]
+    sample_sizes = np.logspace(start=2, stop=5, num=20, base=10, dtype=int)
     outdir = Path("smart/results")
     outdir.mkdir(parents=True, exist_ok=True)
 
