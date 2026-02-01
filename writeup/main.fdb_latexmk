@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1769954542.62896 "main.tex" "main.pdf" "main" 1769954545.73033 0
+["pdflatex"] 1769957813.64678 "main.tex" "main.pdf" "main" 1769957820.43993 0
   "C:/Users/Dell/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1769911740 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/Dell/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1440.pk" 1769904697 16968 34af1eb7b38024e2e471f671d6982f2c ""
   "C:/Users/Dell/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1728661503 11947726 374218e94e1d4976a35fac1ffcf4817b ""
@@ -69,10 +69,11 @@
   "error_scaling.png" 1769953522 79780 5e6c0527dabdb9f7ca45b13e80e0ee50 ""
   "iqae_eps_alpha.png" 1769899483 72736 d559ecf6dcb0b902d11064c1e5c1a448 ""
   "iqae_epsilon_scaling.png" 1769901059 111865 61d7d068d888244766efa23dd363e3aa ""
+  "iqae_shots_alpha.png" 1769957797 68742 407d21a7350be8e5e3b5cae31ddbedbb ""
   "iqae_shots_scaling.png" 1769900704 72777 608fb2566172a82309beaa49393c8be3 ""
   "linearscaling.png" 1769904873 107173 94867c7e3f4b17ae8d088399f65befcb ""
-  "main.aux" 1769954545 7193 23f7c34be0c11f061f6090a98382fbea "pdflatex"
-  "main.tex" 1769954485 26064 37ba1e7336758b08505c9298637a07a5 ""
+  "main.aux" 1769957819 7429 2f7d78467faf89d67bb77fb4b91c11be "pdflatex"
+  "main.tex" 1769957623 26931 ca83222a2bd841a7411d8268d221032d ""
   "real_world_multi_panel.png" 1769924751 605311 6625ca0b2f32f3f0f15c214a8ce67702 ""
   "shotsscaling.png" 1769904861 66508 7fa5adfdfc89a02133bd43d4a9b26c51 ""
   "var_convergence.png" 1769953515 63823 2bc9adbba58ad9afd948775a797db61c ""
