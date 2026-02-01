@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.11)  31 JAN 2026 23:26
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (MiKTeX 24.4) (preloaded format=pdflatex 2024.10.11)  1 FEB 2026 00:54
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -147,8 +147,7 @@ Package: placeins 2005/04/18  v 2.2
 File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count286
 \l__pdf_internal_box=\box56
-)
-No file main.aux.
+) (main.aux)
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 13.
@@ -165,7 +164,7 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 13.
 LaTeX Font Info:    ... okay on input line 13.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 13.
 LaTeX Font Info:    ... okay on input line 13.
-(C:\Users\Dell\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
+ (C:\Users\Dell\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count287
 \scratchdimen=\dimen167
@@ -301,183 +300,109 @@ Package pdftex.def Info: iqae_eps_alpha.png  used on input line 253.
 
 
 [15 <./iqae_shots_scaling.png>]
+<linearscaling.png, id=77, 2007.5pt x 803.0pt>
+File: linearscaling.png Graphic file (type png)
+<use linearscaling.png>
+Package pdftex.def Info: linearscaling.png  used on input line 265.
+(pdftex.def)             Requested size: 390.0pt x 155.99011pt.
+<shotsscaling.png, id=78, 1003.75pt x 803.0pt>
+File: shotsscaling.png Graphic file (type png)
+<use shotsscaling.png>
+Package pdftex.def Info: shotsscaling.png  used on input line 272.
+(pdftex.def)             Requested size: 390.0pt x 312.00473pt.
 
-LaTeX Warning: Reference `fig:iqae_epsilon_scaling' on page 16 undefined on input line 269.
-
-
-LaTeX Warning: Reference `fig:iqae_shots_scaling' on page 16 undefined on input line 270.
-
-
-Overfull \hbox (1.65782pt too wide) in paragraph at lines 261--272
+Overfull \hbox (1.65782pt too wide) in paragraph at lines 279--290
 \OT1/cmr/m/n/14.4 Classical Monte Carlo (MC) es-ti-ma-tion er-ror scales as $\OML/cmm/m/it/14.4 O\OT1/cmr/m/n/14.4 (1\OML/cmm/m/it/14.4 =[]\OT1/cmr/m/n/14.4 )$,
  []
 
 
 
 [16 <./iqae_eps_alpha.png>]
-Overfull \hbox (48.18971pt too wide) in paragraph at lines 289--295
+
+[17 <./linearscaling.png (PNG copy)>]
+Overfull \hbox (48.18971pt too wide) in paragraph at lines 307--313
 \OT1/cmr/m/n/14.4 Both clas-si-cal and quan-tum pipelines in-herit \OT1/cmr/bx/n/14.4 mod-el-ing/discretization
  []
 
 
-Overfull \hbox (11.64209pt too wide) in paragraph at lines 289--295
+Overfull \hbox (11.64209pt too wide) in paragraph at lines 307--313
 \OT1/cmr/bx/n/14.4 er-ror \OT1/cmr/m/n/14.4 from the choice of dis-tri-bu-tion (Gaus-sian vs jump-diffusion),
  []
 
 
 
-[17]
-Overfull \hbox (0.6299pt too wide) in paragraph at lines 297--298
+[18 <./shotsscaling.png (PNG copy)>]
+Overfull \hbox (0.6299pt too wide) in paragraph at lines 315--316
 []\OT1/cmr/bx/n/14.4 Estimation er-ror: \OT1/cmr/m/n/14.4 sam-pling / am-pli-tude es-ti-ma-tion noise. 
  []
 
-
-LaTeX Warning: Reference `fig:comparison_error_vs_queries' on page 18 undefined on input line 301.
-
-
-LaTeX Warning: Reference `fig:comparison_queries_vs_inv_eps' on page 18 undefined on input line 303.
-
-
-LaTeX Warning: Reference `fig:comparison_shots_vs_eps' on page 18 undefined on input line 305.
-
-<comparison_error_vs_queries.png, id=85, 505.89pt x 325.215pt>
+<comparison_error_vs_queries.png, id=90, 505.89pt x 325.215pt>
 File: comparison_error_vs_queries.png Graphic file (type png)
 <use comparison_error_vs_queries.png>
-Package pdftex.def Info: comparison_error_vs_queries.png  used on input line 311.
+Package pdftex.def Info: comparison_error_vs_queries.png  used on input line 329.
 (pdftex.def)             Requested size: 390.0pt x 250.71902pt.
-<comparison_queries_vs_inv_eps.png, id=86, 505.89pt x 325.215pt>
+<comparison_queries_vs_inv_eps.png, id=91, 505.89pt x 325.215pt>
 File: comparison_queries_vs_inv_eps.png Graphic file (type png)
 <use comparison_queries_vs_inv_eps.png>
-Package pdftex.def Info: comparison_queries_vs_inv_eps.png  used on input line 318.
+Package pdftex.def Info: comparison_queries_vs_inv_eps.png  used on input line 336.
 (pdftex.def)             Requested size: 390.0pt x 250.71902pt.
-<comparison_shots_vs_eps.png, id=87, 722.7pt x 303.534pt>
+<comparison_shots_vs_eps.png, id=92, 722.7pt x 303.534pt>
 File: comparison_shots_vs_eps.png Graphic file (type png)
 <use comparison_shots_vs_eps.png>
-Package pdftex.def Info: comparison_shots_vs_eps.png  used on input line 325.
+Package pdftex.def Info: comparison_shots_vs_eps.png  used on input line 343.
 (pdftex.def)             Requested size: 390.0pt x 163.79938pt.
 
 
-[18]
+[19]
 
-[19 <./comparison_error_vs_queries.png>]
+[20 <./comparison_error_vs_queries.png>]
 
-[20 <./comparison_queries_vs_inv_eps.png> <./comparison_shots_vs_eps.png>]
-Overfull \hbox (110.97786pt too wide) in paragraph at lines 343--349
+[21 <./comparison_queries_vs_inv_eps.png> <./comparison_shots_vs_eps.png>]
+Overfull \hbox (110.97786pt too wide) in paragraph at lines 361--367
 \OT1/cmr/m/n/14.4 asym-me-try ob-served in real data. The pa-ram-e-ters $(\OML/cmm/m/it/14.4 ^^V; ^^[; ^^U[]; ^^U[]; ^^V[]; ^^[[]; ^^V[]; ^^[[]\OT1/cmr/m/n/14.4 )$
  []
 
 
 
-[21
+[22
 
 ]
 
-LaTeX Warning: Reference `fig:real_world_gold_fit' on page 22 undefined on input line 365.
-
-
-LaTeX Warning: Reference `fig:real_world_spx_fit' on page 22 undefined on input line 365.
-
-
-LaTeX Warning: Reference `fig:real_world_convergence' on page 22 undefined on input line 366.
-
-
-LaTeX Warning: Reference `fig:real_world_error_scaling' on page 22 undefined on input line 367.
-
-
-LaTeX Warning: File `real_world_gold_fit.png' not found on input line 372.
-
-
-c:/Users/Dell/Desktop/IQuHack/writeup/main.tex:372: Package pdftex.def Error: File `real_world_gold_fit.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.372 ...dth=1\linewidth]{real_world_gold_fit.png}
-                                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-LaTeX Warning: File `real_world_spx_fit.png' not found on input line 379.
-
-
-c:/Users/Dell/Desktop/IQuHack/writeup/main.tex:379: Package pdftex.def Error: File `real_world_spx_fit.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.379 ...idth=1\linewidth]{real_world_spx_fit.png}
-                                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-LaTeX Warning: File `real_world_convergence.png' not found on input line 386.
-
-
-c:/Users/Dell/Desktop/IQuHack/writeup/main.tex:386: Package pdftex.def Error: File `real_world_convergence.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.386 ...=1\linewidth]{real_world_convergence.png}
-                                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-LaTeX Warning: File `real_world_error_scaling.png' not found on input line 393.
-
-
-c:/Users/Dell/Desktop/IQuHack/writeup/main.tex:393: Package pdftex.def Error: File `real_world_error_scaling.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.393 ...\linewidth]{real_world_error_scaling.png}
-                                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-
-[22]
-
 [23]
+<real_world_multi_panel.png, id=112, 859.65166pt x 1100.6721pt>
+File: real_world_multi_panel.png Graphic file (type png)
+<use real_world_multi_panel.png>
+Package pdftex.def Info: real_world_multi_panel.png  used on input line 404.
+(pdftex.def)             Requested size: 390.0pt x 499.34544pt.
+
+Overfull \hbox (2.48178pt too wide) in paragraph at lines 410--419
+\OT1/cmr/m/n/14.4 Poisson fits em-pha-size that mod-el-ing as-sump-tions and dis-cretiza-
+ []
+
+
 
 [24]
 
 [25]
 
-[26] (main.aux)
+[26 <./real_world_multi_panel.png>] (main.aux)
  ***********
 LaTeX2e <2024-06-01> patch level 2
 L3 programming layer <2024-08-30>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
  ) 
 Here is how much of TeX's memory you used:
- 2515 strings out of 473899
- 43189 string characters out of 5726971
- 429250 words of memory out of 5000000
- 25386 multiletter control sequences out of 15000+600000
+ 2423 strings out of 473899
+ 39720 string characters out of 5726971
+ 429482 words of memory out of 5000000
+ 25292 multiletter control sequences out of 15000+600000
  565388 words of font info for 62 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  57i,10n,65p,767b,278s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\Dell\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1440.pk><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/Dell/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (26 pages, 1987250 bytes).
+Output written on main.pdf (26 pages, 2731580 bytes).
 PDF statistics:
- 182 PDF objects out of 1000 (max. 8388607)
+ 186 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 61 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 76 words of extra memory for PDF output out of 10000 (max. 10000000)
 

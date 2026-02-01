@@ -17,7 +17,7 @@
     \centering
     \includegraphics[width=0.8\linewidth]{PeterShor.png}
     \caption{Peter Shor's genuine reaction to our paper}
-    \label{fig:placeholder}
+    \label{fig:peter_shor}
 \end{figure}
 \FloatBarrier
 \section{The VaR Problem}
@@ -30,7 +30,7 @@ in a single day due to random variation only 5\% of the time.
     \centering
     \includegraphics[width=1\linewidth]{NormalDist.png}
     \caption{The VaR here is denoted by the vertical red line and is a percentage of the total portfolio value}
-    \label{fig:placeholder}
+    \label{fig:normal_dist}
 \end{figure}
 Given a normal Gaussian distribution function $G$ with variations within a day and confidence level c, we can solve for VaR with the following:
 Assuming daily returns are normally distributed,
@@ -83,13 +83,13 @@ Running the simulation with $\mu = 0.0005,\sigma = 0.02, c = 0.95$, we received 
     \centering
     \includegraphics[width=1\linewidth]{MonteCarloError.png}
     \caption{log(Error) = -0.50 log(N)}
-    \label{fig:placeholder}
+    \label{fig:mc_error_scaling}
 \end{figure}
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{MonteCarloConvergence.png}
     \caption{Converges to theoretical for $N\approx5000$}
-    \label{fig:placeholder}
+    \label{fig:mc_convergence}
 \end{figure}
 
 \subsection*{The Jump-Diffusion Simulation Model}
@@ -120,14 +120,14 @@ This "stacked" approach allows the model to capture the \textbf{Fat Tails} (kurt
     \centering
     \includegraphics[width=1\linewidth]{error_scaling.png}
     \caption{Jump-Diffusion Error Scaling}
-    \label{fig:placeholder}
+    \label{fig:jump_error_scaling}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{var_convergence.png}
     \caption{Jump-Diffusion Method Convergence}
-    \label{fig:placeholder}
+    \label{fig:jump_var_convergence}
 \end{figure}
 \subsection{Comparing the Models}
 
@@ -256,6 +256,24 @@ We perform a grid search over $\epsilon$ and the IQAE confidence parameter to tu
 \end{figure}
 \FloatBarrier
 
+\subsection{Additional IQAE Diagnostics}
+For completeness, we include supplementary diagnostic plots that corroborate the
+expected scaling behavior beyond the primary log-log figures.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{linearscaling.png}
+    \caption{IQAE queries vs $1/\epsilon$ on linear axes.}
+    \label{fig:iqae_linear_scaling}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{shotsscaling.png}
+    \caption{IQAE error vs shots on linear axes.}
+    \label{fig:iqae_shots_scaling_linear}
+\end{figure}
+
 \section{Comparison}
 \subsection{Scaling Contrast: Monte Carlo vs IQAE}
 Classical Monte Carlo (MC) estimation error scales as $O(1/\sqrt{N})$, so achieving error
@@ -362,40 +380,52 @@ and shot noise against the classical Monte Carlo baseline on a realistic, fat-ta
 dataset.
 
 \subsection{Real-World Plots}
-Figures~\ref{fig:real_world_gold_fit} and~\ref{fig:real_world_spx_fit} show the fitted
-double-Poisson model against empirical returns. Figures~\ref{fig:real_world_convergence}
-and~\ref{fig:real_world_error_scaling} summarize classical convergence and scaling for
-both assets.
+Figure~\ref{fig:real_world_multi_panel} combines the empirical fits, Monte Carlo
+convergence and error scaling for both assets, along with IQAE $1/\epsilon$ query
+scaling for both gold (GC=F) and the S\&P 500 (\^GSPC) on the fitted real-world
+distribution. We focus on gold as the primary stress-test case because risk analysis is
+explicitly about worst-case behavior; gold experienced a sharp drawdown recently, making
+it a natural example where tail events actually occurred.
+
+The real-world IQAE results mirror the synthetic comparison: query complexity scales
+approximately as $O(1/\epsilon)$ even when the distribution is fitted from data rather
+than analytic. This provides a consistent scaling signal across both idealized and
+realistic settings.
+
+\subsection{Reproducibility Note}
+Our quantum experiments use the Classiq SDK for synthesis and execution. The SDK sends
+queries to Classiq's backend, which runs the circuits on a simulator; there is no
+physical quantum hardware in the loop. As a result, results are reproducible given the
+same model parameters and shot budgets, but require network access and valid Classiq
+credentials for the synthesis step.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=1\linewidth]{real_world_gold_fit.png}
-    \caption{Gold returns vs fitted double-Poisson model.}
-    \label{fig:real_world_gold_fit}
-\end{figure}
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=1\linewidth]{real_world_spx_fit.png}
-    \caption{S\&P 500 returns vs fitted double-Poisson model.}
-    \label{fig:real_world_spx_fit}
-\end{figure}
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=1\linewidth]{real_world_convergence.png}
-    \caption{Monte Carlo VaR convergence on real-world fitted curves.}
-    \label{fig:real_world_convergence}
-\end{figure}
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=1\linewidth]{real_world_error_scaling.png}
-    \caption{Monte Carlo error scaling on real-world fitted curves.}
-    \label{fig:real_world_error_scaling}
+    \includegraphics[width=1\linewidth]{real_world_multi_panel.png}
+    \caption{Real-world results: fits, Monte Carlo convergence and error scaling for GC=F and \^GSPC, plus IQAE query scaling for both assets.}
+    \label{fig:real_world_multi_panel}
 \end{figure}
 
 \section{Conclusion}
+We implemented classical Monte Carlo VaR and quantum IQAE VaR on both synthetic and
+realistic distributions, and observed the expected scaling behavior across settings.
+Classically, error decays as $O(1/\sqrt{N})$ with samples; in the quantum pipeline,
+IQAE shows the asymptotic $O(1/\epsilon)$ query scaling while shot noise still follows
+$O(1/\sqrt{\text{shots}})$. The jump-diffusion and double-Poisson fits emphasize that
+modeling assumptions and discretization dominate errors in real data, while IQAE
+primarily reduces estimation error per query. In the real-world extension, gold
+provides a stress-test for tail risk and still exhibits the same scaling signature
+seen in the Gaussian toy model.
+
+\subsection*{Future Work}
+There are several clear next steps. First, extend the IQAE real-world experiments to
+additional asset classes and stress periods to test robustness across
+market regimes. Second, refine state preparation to reduce discretization error,
+including adaptive grids and higher-resolution tail modeling. Third, compare alternative
+heavy-tail models (e.g., Student-$t$, EVT-based fits) against the double-Poisson
+baseline and evaluate their impact on VaR and CVaR. Finally, explore execution on
+actual quantum hardware backends when available to quantify the gap between idealized
+simulators and noisy devices.
 
 Because frankly, we're not Shor. 
 \end{document}
